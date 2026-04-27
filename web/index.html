@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diego Shogun · Blackwork · Viçosa-MG</title>
+  <meta name="description" content="Diego Shogun — tatuagem blackwork, neo-tradicional e geek. Agenda aberta na Casa Flamma, Viçosa-MG." />
+  <meta name="theme-color" content="#0a0a0a" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Diego Shogun · Blackwork · Viçosa-MG" />
+  <meta property="og:description" content="Agenda aberta. Casa Flamma — Viçosa-MG." />
+  <meta property="og:image" content="assets/portfolio/og.jpg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+<!-- ░░░  NAV  ░░░ -->
+<header class="nav" data-reveal>
+  <a href="#" class="nav__brand">
+    <span class="nav__mark">◤</span>
+    <span class="nav__name">DIEGO&nbsp;SHOGUN</span>
+  </a>
+  <nav class="nav__links">
+    <a href="#agenda">Agenda</a>
+    <a href="#portfolio">Portfólio</a>
+    <a href="#booking">Booking</a>
+    <a href="#lojinha">Lojinha</a>
+  </nav>
+  <a href="#booking" class="nav__cta">Reservar slot</a>
+</header>
+
+<!-- ░░░  HERO  ░░░ -->
+<section class="hero">
+  <div class="hero__bg" aria-hidden="true"></div>
+
+  <div class="hero__inner">
+    <p class="hero__eyebrow" data-reveal>Blackwork · Neo-trad · Geek</p>
+    <h1 class="hero__title" data-reveal>
+      Agenda aberta<br/>
+      <span class="hero__title--accent">Viçosa&nbsp;—&nbsp;MG</span>
+    </h1>
+    <p class="hero__sub" data-reveal>
+      Casa Flamma. Slots limitados.<br/>
+      Tatuagem densa, sólida e autoral — preto sobre pele.
+    </p>
+
+    <div class="hero__meta" data-reveal>
+      <div>
+        <span class="hero__meta-label">Estúdio</span>
+        <span class="hero__meta-val">Casa Flamma</span>
+      </div>
+      <div>
+        <span class="hero__meta-label">Cidade</span>
+        <span class="hero__meta-val">Viçosa · MG</span>
+      </div>
+      <div>
+        <span class="hero__meta-label">Período</span>
+        <!-- TODO: trocar pelas datas reais -->
+        <span class="hero__meta-val" data-todo="datas">Datas em breve</span>
+      </div>
+    </div>
+
+    <div class="hero__ctas" data-reveal>
+      <a href="#booking" class="btn btn--primary">Quero meu slot</a>
+      <a href="#portfolio" class="btn btn--ghost">Ver trabalhos</a>
+    </div>
+  </div>
+
+  <a href="#agenda" class="hero__scroll" aria-label="Rolar para baixo">↓</a>
+</section>
+
+<!-- ░░░  AGENDA / SOBRE  ░░░ -->
+<section id="agenda" class="band">
+  <div class="band__col">
+    <h2 class="section__title" data-reveal>Sobre o trabalho</h2>
+    <p class="lede" data-reveal>
+      Linha sólida, preenchimento denso e composição que respira. Trabalho com
+      <em>blackwork</em> de alto contraste, sensibilidade neo-tradicional e referências
+      de anime, mangá e cultura geek — sem perder a peso visual da tatuagem.
+    </p>
+    <ul class="bullets" data-reveal>
+      <li><span>01</span> Cada peça é desenhada pra você — não trabalho com flash genérico.</li>
+      <li><span>02</span> Conversa antes do desenho: ideia, referência, parte do corpo.</li>
+      <li><span>03</span> Sinal de 30% reserva o slot. O restante no dia.</li>
+    </ul>
+  </div>
+  <aside class="band__col band__col--card" data-reveal>
+    <p class="card__eyebrow">Próxima temporada</p>
+    <p class="card__city">Viçosa<span>·</span>MG</p>
+    <p class="card__studio">Casa Flamma</p>
+    <!-- TODO: trocar pelas datas reais -->
+    <p class="card__dates" data-todo="datas">Datas em breve</p>
+    <a href="#booking" class="card__cta">Reservar slot →</a>
+  </aside>
+</section>
+
+<!-- ░░░  PORTFOLIO  ░░░ -->
+<section id="portfolio" class="portfolio">
+  <header class="portfolio__head">
+    <h2 class="section__title" data-reveal>Portfólio</h2>
+    <p class="section__sub" data-reveal>
+      Seleção de trabalhos recentes. Mais em
+      <a href="https://instagram.com/DiegoShogun" target="_blank" rel="noopener">@DiegoShogun</a>.
+    </p>
+  </header>
+  <div id="gallery" class="gallery" data-reveal>
+    <!-- preenchido por main.js a partir de assets/portfolio/manifest.json -->
+    <div class="gallery__loading">carregando…</div>
+  </div>
+</section>
+
+<!-- ░░░  BOOKING FORM  ░░░ -->
+<section id="booking" class="booking">
+  <header class="booking__head">
+    <h2 class="section__title" data-reveal>Reservar um slot</h2>
+    <p class="section__sub" data-reveal>
+      Preencha com calma — quanto mais detalhe, melhor o desenho.
+      Respondo em até 48h pelo WhatsApp.
+    </p>
+  </header>
+
+  <form id="booking-form" class="form" novalidate>
+    <!-- nome / contato -->
+    <div class="form__row">
+      <label class="field">
+        <span class="field__label">Nome <i>*</i></span>
+        <input type="text" name="nome" required autocomplete="name" />
+      </label>
+      <label class="field">
+        <span class="field__label">Idade</span>
+        <input type="number" name="idade" min="18" max="99" placeholder="18+" />
+      </label>
+    </div>
+    <div class="form__row">
+      <label class="field">
+        <span class="field__label">WhatsApp <i>*</i></span>
+        <input type="tel" name="whatsapp" required placeholder="(31) 9 0000-0000" />
+      </label>
+      <label class="field">
+        <span class="field__label">Instagram</span>
+        <input type="text" name="instagram" placeholder="@seu_user" autocomplete="off" />
+      </label>
+    </div>
+    <label class="field">
+      <span class="field__label">E-mail</span>
+      <input type="email" name="email" autocomplete="email" />
+    </label>
+
+    <!-- estilo -->
+    <fieldset class="field field--group">
+      <legend class="field__label">Estilo desejado <i>*</i></legend>
+      <div class="chips" role="radiogroup">
+        <label class="chip"><input type="radio" name="estilo" value="Blackwork" required><span>Blackwork</span></label>
+        <label class="chip"><input type="radio" name="estilo" value="Neo-tradicional"><span>Neo-tradicional</span></label>
+        <label class="chip"><input type="radio" name="estilo" value="Abstrato"><span>Abstrato</span></label>
+        <label class="chip"><input type="radio" name="estilo" value="Geek / Anime"><span>Geek / Anime</span></label>
+        <label class="chip"><input type="radio" name="estilo" value="Sem certeza"><span>Não sei ainda</span></label>
+      </div>
+    </fieldset>
+
+    <!-- BODY PICKER -->
+    <fieldset class="field field--group">
+      <legend class="field__label">Onde vai a tattoo? <i>*</i></legend>
+      <p class="field__hint">Clique nas regiões do corpo. Pode marcar mais de uma.</p>
+      <div class="bodypicker">
+        <div class="bodypicker__view">
+          <div class="bodypicker__tabs" role="tablist">
+            <button type="button" class="bp-tab is-active" data-view="front" role="tab">Frente</button>
+            <button type="button" class="bp-tab" data-view="back" role="tab">Costas</button>
+          </div>
+          <div id="bp-front" class="bp-figure is-active" data-view="front"></div>
+          <div id="bp-back"  class="bp-figure"           data-view="back"></div>
+        </div>
+        <div class="bodypicker__list">
+          <p class="bodypicker__list-title">Selecionado</p>
+          <ul id="bp-selected" class="bodypicker__chips"><li class="bodypicker__empty">nenhuma região marcada</li></ul>
+          <input type="hidden" name="parte_do_corpo" id="parte_do_corpo" />
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- tamanho -->
+    <fieldset class="field field--group">
+      <legend class="field__label">Tamanho aproximado</legend>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="tamanho" value="Pequeno (até 10cm)"><span>Pequeno</span></label>
+        <label class="chip"><input type="radio" name="tamanho" value="Médio (10–20cm)"><span>Médio</span></label>
+        <label class="chip"><input type="radio" name="tamanho" value="Grande (20–40cm)"><span>Grande</span></label>
+        <label class="chip"><input type="radio" name="tamanho" value="Fechamento / sleeve"><span>Fechamento</span></label>
+      </div>
+    </fieldset>
+
+    <!-- ideia -->
+    <label class="field">
+      <span class="field__label">Sua ideia <i>*</i></span>
+      <textarea name="ideia" rows="5" required placeholder="Conta o que tem na cabeça: tema, sentimento, referências de anime/mangá, etc."></textarea>
+    </label>
+
+    <!-- referencias -->
+    <label class="field">
+      <span class="field__label">Links de referência</span>
+      <textarea name="referencias" rows="3" placeholder="Cole aqui links de imagens, posts do Instagram, Pinterest…"></textarea>
+    </label>
+
+    <!-- orçamento -->
+    <fieldset class="field field--group">
+      <legend class="field__label">Orçamento previsto</legend>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="orcamento" value="Até R$ 500"><span>Até R$500</span></label>
+        <label class="chip"><input type="radio" name="orcamento" value="R$ 500 – 1.000"><span>R$500–1k</span></label>
+        <label class="chip"><input type="radio" name="orcamento" value="R$ 1.000 – 2.500"><span>R$1k–2.5k</span></label>
+        <label class="chip"><input type="radio" name="orcamento" value="R$ 2.500+"><span>R$2.5k+</span></label>
+        <label class="chip"><input type="radio" name="orcamento" value="Aberto / converso"><span>Aberto</span></label>
+      </div>
+    </fieldset>
+
+    <!-- consent -->
+    <label class="field field--check">
+      <input type="checkbox" name="consent" required />
+      <span>Tenho 18+ e topo ser contactado(a) pelo WhatsApp/e-mail informado.</span>
+    </label>
+
+    <!-- honeypot anti-spam -->
+    <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" />
+
+    <div class="form__actions">
+      <button type="submit" class="btn btn--primary btn--lg" id="form-submit">Enviar pedido</button>
+      <a class="btn btn--ghost" id="form-wa" href="#" target="_blank" rel="noopener">ou chamar no WhatsApp →</a>
+    </div>
+
+    <p class="form__status" id="form-status" role="status" aria-live="polite"></p>
+  </form>
+</section>
+
+<!-- ░░░  LOJINHA  ░░░ -->
+<section id="lojinha" class="lojinha">
+  <div class="lojinha__inner">
+    <p class="lojinha__eyebrow" data-reveal>Lojinha Diego Shogun</p>
+    <h2 class="lojinha__title" data-reveal>Camisetas, prints &amp; flash · <span>em breve</span></h2>
+    <p class="lojinha__sub" data-reveal>
+      Drops limitados de prints assinados, camisetas e flashes prontos pra fechar.
+      Avisa o lançamento no <a href="https://instagram.com/DiegoShogun" target="_blank" rel="noopener">@DiegoShogun</a>.
+    </p>
+    <button class="btn btn--ghost" disabled>Em breve</button>
+  </div>
+</section>
+
+<!-- ░░░  FOOTER  ░░░ -->
+<footer class="footer">
+  <div class="footer__col">
+    <p class="footer__brand">DIEGO&nbsp;SHOGUN</p>
+    <p class="footer__tag">Blackwork · Neo-trad · Geek</p>
+  </div>
+  <div class="footer__col">
+    <p class="footer__label">Onde me achar</p>
+    <a href="https://instagram.com/DiegoShogun" target="_blank" rel="noopener">Instagram · @DiegoShogun</a>
+    <!-- TODO: trocar 5500000000000 pelo seu número (formato internacional, sem +/espaços) -->
+    <a href="https://wa.me/5500000000000" target="_blank" rel="noopener" data-todo="whatsapp">WhatsApp</a>
+  </div>
+  <div class="footer__col">
+    <p class="footer__label">Estúdio</p>
+    <p>Casa Flamma — Viçosa, MG</p>
+  </div>
+  <p class="footer__copy">© <span id="year"></span> Diego Shogun. Todos os direitos reservados.</p>
+</footer>
+
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>
