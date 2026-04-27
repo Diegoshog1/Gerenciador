@@ -59,58 +59,163 @@ function initReveal(){
 }
 
 /* ── BODY PICKER ─────────────────────────────────────────────────────────── */
+/* Silhueta humana com curvas anatômicas. ViewBox 240x540.
+ * Pontos-chave: cabeça(50), pescoço(95), ombro(118), bicep(180),
+ * cintura(260), quadril(295), joelho(395), tornozelo(490).
+ * Cada região é um path fechado que segue a forma do corpo. */
 
 const FRONT_REGIONS = [
-  { id:"cabeca",         label:"Cabeça",            d:"M94,18 h32 a14,14 0 0 1 14,14 v22 a14,14 0 0 1 -14,14 h-32 a14,14 0 0 1 -14,-14 v-22 a14,14 0 0 1 14,-14 z" },
-  { id:"pescoco",        label:"Pescoço",           d:"M100,68 h20 v10 h-20 z" },
-  { id:"ombro-esq",      label:"Ombro esq.",        d:"M40,82 l28,-2 l4,18 l-30,4 z" },
-  { id:"ombro-dir",      label:"Ombro dir.",        d:"M180,82 l-28,-2 l-4,18 l30,4 z" },
-  { id:"peito",          label:"Peito",             d:"M72,80 h76 l4,40 h-84 z" },
-  { id:"costela-esq",    label:"Costela esq.",      d:"M68,120 h22 v36 h-26 z" },
-  { id:"costela-dir",    label:"Costela dir.",      d:"M152,120 h-22 v36 h26 z" },
-  { id:"abdomen",        label:"Abdômen",           d:"M90,120 h40 l-2,46 h-36 z" },
-  { id:"braco-up-esq",   label:"Braço esq. (cima)", d:"M30,102 h26 l-2,52 h-30 z" },
-  { id:"braco-up-dir",   label:"Braço dir. (cima)", d:"M190,102 h-26 l2,52 h30 z" },
-  { id:"antebraco-esq",  label:"Antebraço esq.",    d:"M22,156 h32 l-2,58 h-34 z" },
-  { id:"antebraco-dir",  label:"Antebraço dir.",    d:"M198,156 h-32 l2,58 h34 z" },
-  { id:"mao-esq",        label:"Mão esq.",          d:"M16,216 h36 v28 h-36 z" },
-  { id:"mao-dir",        label:"Mão dir.",          d:"M204,216 h-36 v28 h36 z" },
-  { id:"coxa-esq",       label:"Coxa esq.",         d:"M68,170 h40 l-2,90 h-42 z" },
-  { id:"coxa-dir",       label:"Coxa dir.",         d:"M152,170 h-40 l2,90 h42 z" },
-  { id:"joelho-esq",     label:"Joelho esq.",       d:"M64,260 h42 v14 h-42 z" },
-  { id:"joelho-dir",     label:"Joelho dir.",       d:"M156,260 h-42 v14 h42 z" },
-  { id:"panturrilha-esq",label:"Panturrilha esq.",  d:"M66,274 h40 l-2,80 h-40 z" },
-  { id:"panturrilha-dir",label:"Panturrilha dir.",  d:"M154,274 h-40 l2,80 h40 z" },
-  { id:"pe-esq",         label:"Pé esq.",           d:"M62,354 h44 v22 h-46 z" },
-  { id:"pe-dir",         label:"Pé dir.",           d:"M158,354 h-44 v22 h46 z" },
+  { id:"cabeca", label:"Cabeça",
+    d:"M120,12 C148,12 158,32 158,56 C158,82 142,96 120,96 C98,96 82,82 82,56 C82,32 92,12 120,12 Z" },
+
+  { id:"pescoco", label:"Pescoço",
+    d:"M104,96 C108,108 110,112 110,120 L130,120 C130,112 132,108 136,96 C130,98 124,98 120,98 C116,98 110,98 104,96 Z" },
+
+  { id:"ombro-esq", label:"Ombro esq.",
+    d:"M136,118 C160,120 184,134 200,158 L186,178 C176,170 162,158 150,148 C144,138 140,128 136,118 Z" },
+  { id:"ombro-dir", label:"Ombro dir.",
+    d:"M104,118 C80,120 56,134 40,158 L54,178 C64,170 78,158 90,148 C96,138 100,128 104,118 Z" },
+
+  { id:"peito-esq", label:"Peitoral esq.",
+    d:"M120,120 L150,148 C152,162 150,178 144,192 L120,196 Z" },
+  { id:"peito-dir", label:"Peitoral dir.",
+    d:"M120,120 L90,148 C88,162 90,178 96,192 L120,196 Z" },
+
+  { id:"costela-esq", label:"Costela esq.",
+    d:"M144,192 C152,210 154,228 152,242 L120,246 L120,196 Z" },
+  { id:"costela-dir", label:"Costela dir.",
+    d:"M96,192 C88,210 86,228 88,242 L120,246 L120,196 Z" },
+
+  { id:"abdomen", label:"Abdômen",
+    d:"M88,242 L152,242 C154,260 156,278 152,294 L88,294 C84,278 86,260 88,242 Z" },
+
+  { id:"quadril", label:"Quadril / virilha",
+    d:"M88,294 L152,294 C156,308 156,318 152,326 L120,328 L88,326 C84,318 84,308 88,294 Z" },
+
+  { id:"braco-up-esq", label:"Braço esq. (cima)",
+    d:"M186,178 C196,200 198,224 196,244 L172,250 C172,228 170,206 168,188 Z" },
+  { id:"braco-up-dir", label:"Braço dir. (cima)",
+    d:"M54,178 C44,200 42,224 44,244 L68,250 C68,228 70,206 72,188 Z" },
+
+  { id:"cotovelo-esq", label:"Cotovelo esq.",
+    d:"M196,244 L172,250 L174,266 L196,260 Z" },
+  { id:"cotovelo-dir", label:"Cotovelo dir.",
+    d:"M44,244 L68,250 L66,266 L44,260 Z" },
+
+  { id:"antebraco-esq", label:"Antebraço esq.",
+    d:"M196,260 L174,266 C176,290 178,316 184,338 L204,332 C204,310 202,284 196,260 Z" },
+  { id:"antebraco-dir", label:"Antebraço dir.",
+    d:"M44,260 L66,266 C64,290 62,316 56,338 L36,332 C36,310 38,284 44,260 Z" },
+
+  { id:"mao-esq", label:"Mão esq.",
+    d:"M184,338 L204,332 C212,346 214,360 210,372 C204,380 192,378 184,372 C180,362 180,350 184,338 Z" },
+  { id:"mao-dir", label:"Mão dir.",
+    d:"M56,338 L36,332 C28,346 26,360 30,372 C36,380 48,378 56,372 C60,362 60,350 56,338 Z" },
+
+  { id:"coxa-esq", label:"Coxa esq.",
+    d:"M120,328 L152,326 C158,360 158,388 152,408 L122,408 Z" },
+  { id:"coxa-dir", label:"Coxa dir.",
+    d:"M120,328 L88,326 C82,360 82,388 88,408 L118,408 Z" },
+
+  { id:"joelho-esq", label:"Joelho esq.",
+    d:"M122,408 L152,408 L150,424 L122,424 Z" },
+  { id:"joelho-dir", label:"Joelho dir.",
+    d:"M118,408 L88,408 L90,424 L118,424 Z" },
+
+  { id:"panturrilha-esq", label:"Panturrilha esq.",
+    d:"M122,424 L150,424 C152,450 150,476 144,494 L122,494 Z" },
+  { id:"panturrilha-dir", label:"Panturrilha dir.",
+    d:"M118,424 L90,424 C88,450 90,476 96,494 L118,494 Z" },
+
+  { id:"pe-esq", label:"Pé esq.",
+    d:"M122,494 L144,494 C150,506 152,518 148,524 L122,524 Z" },
+  { id:"pe-dir", label:"Pé dir.",
+    d:"M118,494 L96,494 C90,506 88,518 92,524 L118,524 Z" },
 ];
 
 const BACK_REGIONS = [
-  { id:"nuca",                 label:"Nuca",                  d:"M94,18 h32 a14,14 0 0 1 14,14 v22 a14,14 0 0 1 -14,14 h-32 a14,14 0 0 1 -14,-14 v-22 a14,14 0 0 1 14,-14 z" },
-  { id:"pescoco-back",         label:"Pescoço (atrás)",       d:"M100,68 h20 v10 h-20 z" },
-  { id:"ombro-back-esq",       label:"Ombro (costas) esq.",   d:"M40,82 l28,-2 l4,18 l-30,4 z" },
-  { id:"ombro-back-dir",       label:"Ombro (costas) dir.",   d:"M180,82 l-28,-2 l-4,18 l30,4 z" },
-  { id:"costas-cima",          label:"Costas (cima)",         d:"M72,80 h76 l4,46 h-84 z" },
-  { id:"costas-baixo",         label:"Costas (baixo) / lombar",d:"M70,126 h80 l-4,40 h-72 z" },
-  { id:"triceps-esq",          label:"Tríceps esq.",          d:"M30,102 h26 l-2,52 h-30 z" },
-  { id:"triceps-dir",          label:"Tríceps dir.",          d:"M190,102 h-26 l2,52 h30 z" },
-  { id:"antebraco-back-esq",   label:"Antebraço (atrás) esq.",d:"M22,156 h32 l-2,58 h-34 z" },
-  { id:"antebraco-back-dir",   label:"Antebraço (atrás) dir.",d:"M198,156 h-32 l2,58 h34 z" },
-  { id:"gluteo",               label:"Glúteo",                d:"M74,166 h72 l-2,42 h-68 z" },
-  { id:"post-coxa-esq",        label:"Posterior coxa esq.",   d:"M70,208 h38 l-2,80 h-40 z" },
-  { id:"post-coxa-dir",        label:"Posterior coxa dir.",   d:"M150,208 h-38 l2,80 h40 z" },
-  { id:"post-panturrilha-esq", label:"Panturrilha (atrás) esq.",d:"M68,288 h40 l-2,80 h-42 z" },
-  { id:"post-panturrilha-dir", label:"Panturrilha (atrás) dir.",d:"M152,288 h-40 l2,80 h42 z" },
+  { id:"nuca", label:"Nuca / cabeça (atrás)",
+    d:"M120,12 C148,12 158,32 158,56 C158,82 142,96 120,96 C98,96 82,82 82,56 C82,32 92,12 120,12 Z" },
+
+  { id:"pescoco-back", label:"Pescoço (atrás)",
+    d:"M104,96 C108,108 110,112 110,120 L130,120 C130,112 132,108 136,96 C130,98 124,98 120,98 C116,98 110,98 104,96 Z" },
+
+  { id:"ombro-back-esq", label:"Ombro (atrás) esq.",
+    d:"M136,118 C160,120 184,134 200,158 L186,178 C176,170 162,158 150,148 C144,138 140,128 136,118 Z" },
+  { id:"ombro-back-dir", label:"Ombro (atrás) dir.",
+    d:"M104,118 C80,120 56,134 40,158 L54,178 C64,170 78,158 90,148 C96,138 100,128 104,118 Z" },
+
+  { id:"costas-cima-esq", label:"Costas (cima) esq.",
+    d:"M120,120 L150,148 C152,162 150,180 144,196 L120,200 Z" },
+  { id:"costas-cima-dir", label:"Costas (cima) dir.",
+    d:"M120,120 L90,148 C88,162 90,180 96,196 L120,200 Z" },
+
+  { id:"costas-meio", label:"Costas (meio)",
+    d:"M96,196 L144,196 L150,238 L90,238 Z" },
+
+  { id:"lombar", label:"Lombar",
+    d:"M90,238 L150,238 C152,260 152,278 148,294 L92,294 C88,278 88,260 90,238 Z" },
+
+  { id:"triceps-esq", label:"Tríceps esq.",
+    d:"M186,178 C196,200 198,224 196,244 L172,250 C172,228 170,206 168,188 Z" },
+  { id:"triceps-dir", label:"Tríceps dir.",
+    d:"M54,178 C44,200 42,224 44,244 L68,250 C68,228 70,206 72,188 Z" },
+
+  { id:"cotovelo-back-esq", label:"Cotovelo (atrás) esq.",
+    d:"M196,244 L172,250 L174,266 L196,260 Z" },
+  { id:"cotovelo-back-dir", label:"Cotovelo (atrás) dir.",
+    d:"M44,244 L68,250 L66,266 L44,260 Z" },
+
+  { id:"antebraco-back-esq", label:"Antebraço (atrás) esq.",
+    d:"M196,260 L174,266 C176,290 178,316 184,338 L204,332 C204,310 202,284 196,260 Z" },
+  { id:"antebraco-back-dir", label:"Antebraço (atrás) dir.",
+    d:"M44,260 L66,266 C64,290 62,316 56,338 L36,332 C36,310 38,284 44,260 Z" },
+
+  { id:"mao-back-esq", label:"Mão (atrás) esq.",
+    d:"M184,338 L204,332 C212,346 214,360 210,372 C204,380 192,378 184,372 C180,362 180,350 184,338 Z" },
+  { id:"mao-back-dir", label:"Mão (atrás) dir.",
+    d:"M56,338 L36,332 C28,346 26,360 30,372 C36,380 48,378 56,372 C60,362 60,350 56,338 Z" },
+
+  { id:"gluteo-esq", label:"Glúteo esq.",
+    d:"M120,294 L148,294 C156,308 156,322 150,332 L120,332 Z" },
+  { id:"gluteo-dir", label:"Glúteo dir.",
+    d:"M120,294 L92,294 C84,308 84,322 90,332 L120,332 Z" },
+
+  { id:"post-coxa-esq", label:"Posterior coxa esq.",
+    d:"M120,332 L150,332 C156,366 156,394 150,412 L122,412 Z" },
+  { id:"post-coxa-dir", label:"Posterior coxa dir.",
+    d:"M120,332 L90,332 C84,366 84,394 90,412 L118,412 Z" },
+
+  { id:"jarrete-esq", label:"Jarrete esq.",
+    d:"M122,412 L150,412 L148,428 L122,428 Z" },
+  { id:"jarrete-dir", label:"Jarrete dir.",
+    d:"M118,412 L90,412 L92,428 L118,428 Z" },
+
+  { id:"post-panturrilha-esq", label:"Panturrilha (atrás) esq.",
+    d:"M122,428 L148,428 C150,454 148,478 142,496 L122,496 Z" },
+  { id:"post-panturrilha-dir", label:"Panturrilha (atrás) dir.",
+    d:"M118,428 L92,428 C90,454 92,478 98,496 L118,496 Z" },
 ];
 
-function buildBodySvg(regions){
-  // viewBox padronizado
+function buildBodySvg(regions, view){
   const paths = regions.map(r =>
     `<path class="bp-region" data-region="${r.id}" data-label="${r.label}" d="${r.d}"><title>${r.label}</title></path>`
   ).join("");
+  // contorno externo sutil que envolve todo o corpo (decorativo, não clicável)
+  const outline = `
+    <path class="bp-outline" pointer-events="none"
+      d="M120,12 C148,12 158,32 158,56 C158,82 142,96 120,96 C98,96 82,82 82,56 C82,32 92,12 120,12 Z
+         M104,96 C108,108 110,112 110,120 C80,120 56,134 40,158 C44,200 42,224 44,244 C36,310 26,346 30,372
+                  C36,380 48,378 56,372 C60,362 60,350 56,338 C64,290 68,250 68,250 C70,228 72,206 72,188
+         M136,96 C132,108 130,112 130,120 C160,120 184,134 200,158 C196,200 198,224 196,244 C204,310 214,346 210,372
+                  C204,380 192,378 184,372 C180,362 180,350 184,338 C176,290 172,250 172,250 C170,228 168,206 168,188
+         M88,326 C82,360 82,388 88,408 C88,450 96,494 96,494 C90,506 88,518 92,524 L148,524
+                  C152,518 150,506 144,494 C150,476 152,450 152,408 C158,388 158,360 152,326"/>
+  `;
   return `
-    <svg viewBox="0 0 220 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Selecione regiões do corpo">
-      ${paths}
+    <svg viewBox="0 0 240 540" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Selecione regiões do corpo (${view === 'front' ? 'frente' : 'costas'})">
+      <g class="bp-figure-g">${paths}${outline}</g>
     </svg>
   `;
 }
@@ -122,8 +227,8 @@ function initBodyPicker(){
   const back  = document.getElementById("bp-back");
   if (!front || !back) return;
 
-  front.innerHTML = buildBodySvg(FRONT_REGIONS);
-  back.innerHTML  = buildBodySvg(BACK_REGIONS);
+  front.innerHTML = buildBodySvg(FRONT_REGIONS, "front");
+  back.innerHTML  = buildBodySvg(BACK_REGIONS, "back");
 
   // Tabs
   document.querySelectorAll(".bp-tab").forEach(btn => {

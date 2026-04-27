@@ -610,22 +610,31 @@ button{ font:inherit; cursor:pointer; }
 
 .bp-figure{ display:none; }
 .bp-figure.is-active{ display:block; }
-.bp-figure svg{ width:100%; height:auto; max-height: 460px; display: block; margin: 0 auto; }
+.bp-figure svg{ width:100%; height:auto; max-height: 540px; display: block; margin: 0 auto; }
 
 .bp-figure svg .bp-region{
-  fill: rgba(26,23,20,0.06);
-  stroke: rgba(26,23,20,0.25);
-  stroke-width: 1;
+  fill: rgba(26,23,20,0.04);
+  stroke: rgba(26,23,20,0.18);
+  stroke-width: .8;
+  vector-effect: non-scaling-stroke;
   cursor: pointer;
-  transition: fill .18s, stroke .18s;
+  transition: fill .18s ease, stroke .18s ease;
 }
 .bp-figure svg .bp-region:hover{
-  fill: rgba(196,50,42,.28);
+  fill: rgba(196,50,42,.30);
   stroke: var(--red);
 }
 .bp-figure svg .bp-region.is-on{
-  fill: rgba(196,50,42,.55);
+  fill: rgba(196,50,42,.60);
   stroke: var(--red);
+}
+/* contorno externo decorativo (não clicável) */
+.bp-figure svg .bp-outline{
+  fill: none;
+  stroke: rgba(26,23,20,0.55);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .bodypicker__list-title{
