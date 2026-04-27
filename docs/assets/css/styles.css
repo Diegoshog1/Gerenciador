@@ -24,8 +24,9 @@
   --max:       1240px;
   --pad:       clamp(20px, 4vw, 56px);
 
-  --serif-display: "DM Serif Display", "Cormorant Garamond", "Times New Roman", serif;
-  --serif-jp:      "Shippori Mincho", "Noto Serif JP", serif;
+  --serif-display: "Bodoni Moda", "Playfair Display", "Times New Roman", serif;
+  --serif-italic:  "Mrs Saint Delafield", "Bodoni Moda", cursive;
+  --serif-jp:      "Yuji Mai", "Hina Mincho", serif;
   --sans:          "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono:          "IBM Plex Mono", ui-monospace, "Menlo", monospace;
 }
@@ -83,12 +84,13 @@ button{ font:inherit; cursor:pointer; }
 /* ─── titulos ────────────────────────────────────────────────────────── */
 .section__title{
   font-family: var(--serif-display);
-  font-weight: 400;
+  font-weight: 700;
   font-size: clamp(40px, 6vw, 76px);
   line-height: .95;
-  letter-spacing: -.005em;
+  letter-spacing: -.015em;
   color: var(--cream);
   margin: 0 0 .35em;
+  text-transform: uppercase;
 }
 .section__title--center{ text-align: center; }
 .section__sub{
@@ -116,12 +118,16 @@ button{ font:inherit; cursor:pointer; }
   line-height: 1;
 }
 .nav__name{
-  font-family: var(--serif-display);
-  font-size: 16px; letter-spacing:.04em; color: var(--cream);
+  font-family: var(--serif-display); font-weight: 700;
+  font-size: 14px; letter-spacing:.06em; color: var(--cream);
+  text-transform: uppercase;
 }
 .nav__name i{
-  font-style: italic; font-weight: 400; font-size: 12px;
-  color: var(--cream-dim); margin: 0 .15em;
+  font-family: var(--serif-italic);
+  font-style: normal; font-weight: 400; font-size: 22px;
+  color: var(--gold-soft); margin: 0 .1em;
+  text-transform: lowercase;
+  vertical-align: -.15em;
 }
 .nav__links{ display:flex; gap: 28px; }
 .nav__links a{
@@ -152,23 +158,25 @@ button{ font:inherit; cursor:pointer; }
     radial-gradient(1000px 500px at 80% 10%, rgba(196,50,42,.10), transparent 60%),
     radial-gradient(700px 350px at 5% 90%, rgba(62,77,58,.18), transparent 60%);
 }
-.hero__pattern{
+.hero__grain{
   position:absolute; inset: 0;
-  color: rgba(236,228,211,.06);
   pointer-events:none;
-  opacity: .9;
+  opacity: .35;
+  mix-blend-mode: overlay;
 }
+.hero__grain svg{ width:100%; height:100%; }
 .hero__bg-kanji{
   position: absolute;
-  right: -4vw; bottom: -4vw;
+  right: -2vw; bottom: -8vw;
   font-family: var(--serif-jp);
-  font-weight: 800;
-  font-size: clamp(360px, 50vw, 720px);
+  font-weight: 400;
+  font-size: clamp(420px, 60vw, 880px);
   line-height: 1;
-  color: var(--cream);
-  opacity: .025;
+  color: var(--red-deep);
+  opacity: .12;
   pointer-events:none;
   user-select:none;
+  letter-spacing: -.05em;
 }
 .hero__inner{
   position: relative; z-index: 2;
@@ -193,29 +201,34 @@ button{ font:inherit; cursor:pointer; }
 
 .hero__title{
   font-family: var(--serif-display);
-  font-weight: 400;
-  font-size: clamp(80px, 14vw, 220px);
-  line-height: .82;
-  letter-spacing: -.015em;
+  font-weight: 800;
+  font-size: clamp(72px, 13vw, 200px);
+  line-height: .9;
+  letter-spacing: -.02em;
   color: var(--cream);
-  margin: 0 0 28px;
+  margin: 0 0 32px;
   display: flex; flex-wrap: wrap; align-items: baseline;
-  gap: 0 .25em;
+  gap: 0 .12em;
   position: relative;
+  text-transform: uppercase;
+}
+.hero__title-line1, .hero__title-line2{
+  font-feature-settings: "kern" 1, "ss01" 1;
 }
 .hero__title-mid{
-  font-family: var(--serif-display);
-  font-style: italic;
-  font-size: clamp(28px, 4vw, 56px);
+  font-family: var(--serif-italic);
+  font-style: normal;
+  font-size: clamp(56px, 8vw, 110px);
   color: var(--gold-soft);
   font-weight: 400;
   align-self: end;
-  padding-bottom: .35em;
+  padding-bottom: .15em;
+  text-transform: lowercase;
+  letter-spacing: 0;
 }
-.hero__title-mid i{ font-style: italic; }
+.hero__title-mid i{ font-style: normal; }
 .hero__title-line2{
   color: var(--red);
-  font-style: italic;
 }
 
 .hero__sub{
@@ -361,11 +374,13 @@ button{ font:inherit; cursor:pointer; }
 }
 .band__card-city{
   font-family: var(--serif-display);
-  font-size: clamp(56px, 7vw, 86px);
+  font-weight: 800;
+  font-size: clamp(52px, 6.5vw, 80px);
   line-height: .9;
-  margin: 0; color: var(--ink); letter-spacing: -.01em;
+  margin: 0; color: var(--ink); letter-spacing: -.02em;
+  text-transform: uppercase;
 }
-.band__card-city i{ color: var(--red); font-style: italic; }
+.band__card-city i{ color: var(--red); font-style: italic; font-weight: 700; }
 .band__card-studio{
   font-family: var(--serif-display);
   font-style: italic;
@@ -674,20 +689,26 @@ button{ font:inherit; cursor:pointer; }
 }
 .lojinha__title{
   font-family: var(--serif-display);
-  font-weight: 400;
+  font-weight: 700;
   font-size: clamp(40px, 6vw, 72px);
   margin: 0 0 18px;
   color: var(--cream);
   line-height: 1;
-  letter-spacing: -.005em;
+  letter-spacing: -.015em;
+  text-transform: uppercase;
 }
-.lojinha__title i{ font-style: italic; color: var(--gold-soft); font-size: .55em; }
+.lojinha__title i{
+  font-family: var(--serif-italic); font-style: normal;
+  color: var(--gold-soft); font-size: .85em;
+  text-transform: lowercase;
+  vertical-align: -.1em;
+}
 .lojinha__sub{
   color: var(--cream-dim);
   margin: 0 auto 36px;
   max-width: 50ch;
-  font-family: var(--serif-display); font-style: italic;
-  font-size: 19px;
+  font-family: var(--sans);
+  font-size: 16px; line-height: 1.55;
 }
 .lojinha__sub a{ color: var(--gold-soft); border-bottom: 1px solid var(--gold); }
 
@@ -747,11 +768,13 @@ button{ font:inherit; cursor:pointer; }
   color: var(--cream);
   padding: 36px 28px;
 }
-.footer__pattern{
+.footer__grain{
   position:absolute; inset: 0;
-  color: rgba(236,228,211,.10);
   pointer-events:none;
+  opacity: .35;
+  mix-blend-mode: overlay;
 }
+.footer__grain svg{ width:100%; height:100%; }
 .footer__brand-inner{ position: relative; z-index: 2; }
 .footer__kanji{
   display:block;
@@ -762,12 +785,18 @@ button{ font:inherit; cursor:pointer; }
 }
 .footer__brand-name{
   font-family: var(--serif-display);
-  font-size: 32px; line-height: 1;
+  font-weight: 700;
+  font-size: 30px; line-height: 1;
+  letter-spacing: -.01em;
   margin: 0 0 8px;
+  text-transform: uppercase;
 }
 .footer__brand-name i{
-  font-style: italic; font-weight: 400; font-size: .55em;
-  color: rgba(236,228,211,.7); margin: 0 .15em;
+  font-family: var(--serif-italic);
+  font-style: normal; font-weight: 400; font-size: 1em;
+  color: rgba(236,228,211,.85); margin: 0 .05em;
+  text-transform: lowercase;
+  vertical-align: -.1em;
 }
 .footer__brand-tag{
   font-family: var(--mono); font-size: 11px; letter-spacing: .25em;
