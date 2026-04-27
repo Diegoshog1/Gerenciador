@@ -25,7 +25,7 @@ Endpoint Google Apps Script que recebe os pedidos da landing e grava numa Google
    - Copia a **URL do app da Web** (termina em `/exec`).
 
 4. **Plugar na landing**
-   - Abre `web/assets/js/main.js`
+   - Abre `docs/assets/js/main.js`
    - Cola a URL em `GOOGLE_SCRIPT_URL`.
    - Faz commit e push.
 

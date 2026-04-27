@@ -4,7 +4,7 @@ Coloque as fotos das tatuagens nesta pasta e liste-as em `manifest.json`.
 
 ## Como adicionar uma nova foto
 
-1. Salve a imagem nesta pasta — ex: `web/assets/portfolio/07.jpg`.
+1. Salve a imagem nesta pasta — ex: `docs/assets/portfolio/07.jpg`.
    - Use JPG/WEBP otimizados (cada arquivo idealmente abaixo de 400KB).
    - Pode usar [squoosh.app](https://squoosh.app) ou [tinypng.com](https://tinypng.com) pra comprimir.
 

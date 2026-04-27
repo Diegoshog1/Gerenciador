@@ -16,7 +16,7 @@ Sem dependências, sem build. Joga num GitHub Pages, Vercel, Netlify ou qualquer
 ## Estrutura
 
 ```
-web/
+docs/
 ├── index.html
 ├── assets/
 │   ├── css/styles.css
@@ -35,7 +35,7 @@ web/
 
 ### 1) Configure o WhatsApp e o Apps Script
 
-Abra `web/assets/js/main.js`, no topo:
+Abra `docs/assets/js/main.js`, no topo:
 
 ```js
 const GOOGLE_SCRIPT_URL = "";   // depois do passo 3, cola aqui
@@ -58,7 +58,7 @@ Procure por `data-todo` no `index.html` — são os pontos que esperam input seu
 
 ## Rodar localmente
 
-Como é estático, basta servir a pasta `web/`. Por exemplo:
+Como é estático, basta servir a pasta `docs/`. Por exemplo:
 
 ```bash
 # Python
@@ -79,13 +79,13 @@ npx serve web
 ### Opção A · GitHub Pages (grátis)
 
 1. No GitHub: `Settings` → `Pages`
-2. Source: branch `main`, pasta `/web`
+2. Source: branch `claude/create-landing-page-jkdZU`, pasta `/docs`
 3. Aguarde ~1min, vai publicar em `https://<usuario>.github.io/<repo>/`
 
 ### Opção B · Vercel / Netlify
 
 - **Vercel:** `vercel --cwd web` (ou import via dashboard, root = `web`)
-- **Netlify:** drag-and-drop da pasta `web/` ou via CLI: `netlify deploy --dir=web`
+- **Netlify:** drag-and-drop da pasta `docs/` ou via CLI: `netlify deploy --dir=web`
 
 ### Domínio próprio
 

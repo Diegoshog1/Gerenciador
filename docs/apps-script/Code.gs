@@ -12,7 +12,7 @@
  *       Executar como: Eu mesmo
  *       Quem pode acessar: Qualquer pessoa
  *  6. Copie a URL gerada (termina em /exec) e cole em GOOGLE_SCRIPT_URL no
- *     arquivo web/assets/js/main.js
+ *     arquivo docs/assets/js/main.js
  */
 
 // ↓↓↓ EDITE AQUI ↓↓↓

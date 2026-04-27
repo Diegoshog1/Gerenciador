@@ -12,7 +12,7 @@
  * ========================================================================== */
 
 // Cole aqui a URL do Web App do Google Apps Script (deploy → "Anyone")
-// Veja web/apps-script/README.md
+// Veja docs/apps-script/README.md
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwn7_-m61xhWZ72YuXezs0A6Pu3dzpDGPj0hu_QMz__D0rSJJ4FrSf02uC1x62otp5hMg/exec";
 
 // Número do WhatsApp em formato internacional, sem + nem espaços (ex: 5531999999999)
@@ -209,7 +209,7 @@ async function initGallery(){
     gallery.innerHTML = `
       <div class="gallery__empty">
         <p>Galeria vazia.</p>
-        <p>Coloque fotos em <code>web/assets/portfolio/</code> e liste em <code>manifest.json</code>.</p>
+        <p>Coloque fotos em <code>docs/assets/portfolio/</code> e liste em <code>manifest.json</code>.</p>
       </div>`;
     return;
   }
@@ -303,7 +303,7 @@ function initForm(){
         // modo "preview": ainda não configurado
         console.log("[booking] payload:", data);
         await delay(700);
-        status.textContent = "Preview OK — falta configurar GOOGLE_SCRIPT_URL em assets/js/main.js (veja web/apps-script/README.md).";
+        status.textContent = "Preview OK — falta configurar GOOGLE_SCRIPT_URL em assets/js/main.js (veja docs/apps-script/README.md).";
         status.className = "form__status is-ok";
         return;
       }
