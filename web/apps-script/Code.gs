@@ -16,7 +16,7 @@
  */
 
 // ↓↓↓ EDITE AQUI ↓↓↓
-const SHEET_URL  = "";              // ex: https://docs.google.com/spreadsheets/d/XXXX/edit
+const SHEET_URL  = "https://docs.google.com/spreadsheets/d/1-ULGGm8iNEhKdKy1SDuyXbZ8Hf3eDqzIKKAGrNbc7qA/edit";
 const SHEET_NAME = "Bookings";      // nome da aba (será criada se não existir)
 const NOTIFY_EMAIL = "";            // (opcional) seu e-mail pra notificação
 // ↑↑↑ EDITE AQUI ↑↑↑
