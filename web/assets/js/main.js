@@ -13,7 +13,7 @@
 
 // Cole aqui a URL do Web App do Google Apps Script (deploy → "Anyone")
 // Veja web/apps-script/README.md
-const GOOGLE_SCRIPT_URL = "";   // ex: "https://script.google.com/macros/s/AKfy.../exec"
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwn7_-m61xhWZ72YuXezs0A6Pu3dzpDGPj0hu_QMz__D0rSJJ4FrSf02uC1x62otp5hMg/exec";
 
 // Número do WhatsApp em formato internacional, sem + nem espaços (ex: 5531999999999)
 const WHATSAPP_NUMBER   = "";   // TODO: preencha
