@@ -625,30 +625,53 @@ button{ font:inherit; cursor:pointer; }
 
 .bp-figure{ display:none; }
 .bp-figure.is-active{ display:block; }
-.bp-figure svg{ width:100%; height:auto; max-height: 540px; display: block; margin: 0 auto; }
+.bp-figure svg{
+  width:100%; height:auto; max-height: 600px; display: block; margin: 0 auto;
+  --bp-gray:        #c4bfb4;
+  --bp-gray-line:   #6e6a62;
+  --bp-orange:      #ed8742;
+  --bp-orange-line: #a8552a;
+  --bp-orange-hot:  #d6541c;
+}
 
-.bp-figure svg .bp-region{
-  fill: rgba(26,23,20,0.04);
-  stroke: rgba(26,23,20,0.18);
-  stroke-width: .8;
-  vector-effect: non-scaling-stroke;
-  cursor: pointer;
-  transition: fill .18s ease, stroke .18s ease;
-}
-.bp-figure svg .bp-region:hover{
-  fill: rgba(196,50,42,.30);
-  stroke: var(--red);
-}
-.bp-figure svg .bp-region.is-on{
-  fill: rgba(196,50,42,.60);
-  stroke: var(--red);
-}
-/* contorno externo decorativo (não clicável) */
-.bp-figure svg .bp-outline{
-  fill: none;
-  stroke: rgba(26,23,20,0.55);
+/* base estrutural (cabeça, pescoço, mãos, pés, contorno do corpo) */
+.bp-figure svg .bp-base{
+  fill: var(--bp-gray);
+  stroke: var(--bp-gray-line);
   stroke-width: 1.4;
   stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+/* grupos musculares clicáveis (laranja estilo livro de anatomia) */
+.bp-figure svg .bp-region{
+  fill: var(--bp-orange);
+  stroke: var(--bp-orange-line);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+  transition: fill .18s ease, transform .15s ease;
+}
+.bp-figure svg .bp-region:hover{
+  fill: var(--bp-orange-hot);
+  filter: brightness(1.05);
+}
+.bp-figure svg .bp-region.is-on{
+  fill: var(--red);
+  stroke: var(--red-deep);
+  stroke-width: 1.6;
+}
+
+/* linhas internas decorativas (definição muscular: esterno, divisão dos abs etc) */
+.bp-figure svg .bp-lines-g path{
+  fill: none;
+  stroke: var(--bp-orange-line);
+  stroke-width: .8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: .7;
   vector-effect: non-scaling-stroke;
 }
 

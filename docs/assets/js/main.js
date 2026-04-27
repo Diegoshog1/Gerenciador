@@ -59,163 +59,204 @@ function initReveal(){
 }
 
 /* ── BODY PICKER ─────────────────────────────────────────────────────────── */
-/* Silhueta humana com curvas anatômicas. ViewBox 240x540.
- * Pontos-chave: cabeça(50), pescoço(95), ombro(118), bicep(180),
- * cintura(260), quadril(295), joelho(395), tornozelo(490).
- * Cada região é um path fechado que segue a forma do corpo. */
+/* Diagrama anatômico estilo manual médico.
+ * ViewBox 280x600. Pontos-chave:
+ *   cabeça(50), pescoço(102), ombro(122), bicep(170),
+ *   peito(160), umbigo(240), quadril(290), joelho(440), tornozelo(530)
+ *
+ * Estrutura por view:
+ *   base   = silhueta cinza (não clicável): cabeça, pescoço, mãos, pés, contorno
+ *   muscle = grupos musculares (clicáveis em laranja)
+ *   lines  = traços internos decorativos (divisão de abs, etc)
+ */
 
+// Silhueta principal (gray fill) — desenhada uma vez por view
+const FRONT_SILHOUETTE = `
+  M140,14 C170,14 180,30 180,54 C180,80 164,92 140,92 C116,92 100,80 100,54 C100,30 110,14 140,14 Z
+  M124,92 L156,92 L172,116 L108,116 Z
+  M172,116 C200,118 226,130 234,156 C236,176 234,200 232,222 C234,248 232,278 226,308
+           C230,328 234,348 234,360 C240,378 238,396 230,404 C222,410 210,408 206,400
+           C202,388 200,372 198,360 L194,330 L188,266 C186,242 182,222 178,210 L172,196
+           L168,196 L172,212 C176,234 178,256 178,270 C180,294 184,318 184,326
+           C184,360 188,400 186,432 L184,448 C182,476 184,506 182,528 C184,540 184,556 180,564
+           L156,564 L156,540 C156,512 154,476 154,440 L154,326 L140,326 L140,318
+           L156,318 L156,116 Z
+  M108,116 C80,118 54,130 46,156 C44,176 46,200 48,222 C46,248 48,278 54,308
+           C50,328 46,348 46,360 C40,378 42,396 50,404 C58,410 70,408 74,400
+           C78,388 80,372 82,360 L86,330 L92,266 C94,242 98,222 102,210 L108,196
+           L112,196 L108,212 C104,234 102,256 102,270 C100,294 96,318 96,326
+           C96,360 92,400 94,432 L96,448 C98,476 96,506 98,528 C96,540 96,556 100,564
+           L124,564 L124,540 C124,512 126,476 126,440 L126,326 L140,326 L140,318
+           L124,318 L124,116 Z
+`;
+
+// Mãos e pés (gray, fora do silhouette pra ter borda própria)
+const FRONT_EXTRAS = `
+  <!-- mão direita -->
+  <path class="bp-base bp-base--gray" d="M210,400 C222,400 234,406 240,418 C242,428 240,440 232,446 C220,450 208,446 204,438 C198,432 200,420 204,410 Z"/>
+  <!-- mão esquerda -->
+  <path class="bp-base bp-base--gray" d="M70,400 C58,400 46,406 40,418 C38,428 40,440 48,446 C60,450 72,446 76,438 C82,432 80,420 76,410 Z"/>
+  <!-- pé direito -->
+  <path class="bp-base bp-base--gray" d="M156,564 L194,564 C212,566 218,576 214,584 L156,584 Z"/>
+  <!-- pé esquerdo -->
+  <path class="bp-base bp-base--gray" d="M124,564 L86,564 C68,566 62,576 66,584 L124,584 Z"/>
+`;
+
+// Linhas internas decorativas (definição muscular)
+const FRONT_LINES = `
+  <!-- linha do esterno -->
+  <path d="M140,124 L140,210" />
+  <!-- divisões do abdômen (6-pack) -->
+  <path d="M140,210 L140,290" />
+  <path d="M122,232 L158,232" />
+  <path d="M122,254 L158,254" />
+  <path d="M122,276 L158,276" />
+  <!-- linha alba inferior -->
+  <path d="M140,290 L140,316" />
+  <!-- inguinal -->
+  <path d="M118,308 L140,326 L162,308" />
+`;
+
+// Grupos musculares clicáveis (frente)
 const FRONT_REGIONS = [
-  { id:"cabeca", label:"Cabeça",
-    d:"M120,12 C148,12 158,32 158,56 C158,82 142,96 120,96 C98,96 82,82 82,56 C82,32 92,12 120,12 Z" },
+  { id:"trapezio-frente", label:"Trapézio",
+    d:"M124,116 L156,116 L172,128 L168,134 C158,128 152,126 140,126 C128,126 122,128 112,134 L108,128 Z" },
 
-  { id:"pescoco", label:"Pescoço",
-    d:"M104,96 C108,108 110,112 110,120 L130,120 C130,112 132,108 136,96 C130,98 124,98 120,98 C116,98 110,98 104,96 Z" },
+  { id:"deltoide-esq", label:"Deltoide esq.",
+    d:"M172,128 C200,134 222,148 232,170 C228,180 220,184 210,182 C198,176 188,164 174,148 L168,134 Z" },
+  { id:"deltoide-dir", label:"Deltoide dir.",
+    d:"M108,128 C80,134 58,148 48,170 C52,180 60,184 70,182 C82,176 92,164 106,148 L112,134 Z" },
 
-  { id:"ombro-esq", label:"Ombro esq.",
-    d:"M136,118 C160,120 184,134 200,158 L186,178 C176,170 162,158 150,148 C144,138 140,128 136,118 Z" },
-  { id:"ombro-dir", label:"Ombro dir.",
-    d:"M104,118 C80,120 56,134 40,158 L54,178 C64,170 78,158 90,148 C96,138 100,128 104,118 Z" },
+  { id:"peitoral-esq", label:"Peitoral esq.",
+    d:"M140,126 C158,128 174,140 182,156 C186,170 184,186 178,196 C168,206 154,210 140,208 Z" },
+  { id:"peitoral-dir", label:"Peitoral dir.",
+    d:"M140,126 C122,128 106,140 98,156 C94,170 96,186 102,196 C112,206 126,210 140,208 Z" },
 
-  { id:"peito-esq", label:"Peitoral esq.",
-    d:"M120,120 L150,148 C152,162 150,178 144,192 L120,196 Z" },
-  { id:"peito-dir", label:"Peitoral dir.",
-    d:"M120,120 L90,148 C88,162 90,178 96,192 L120,196 Z" },
-
-  { id:"costela-esq", label:"Costela esq.",
-    d:"M144,192 C152,210 154,228 152,242 L120,246 L120,196 Z" },
-  { id:"costela-dir", label:"Costela dir.",
-    d:"M96,192 C88,210 86,228 88,242 L120,246 L120,196 Z" },
-
-  { id:"abdomen", label:"Abdômen",
-    d:"M88,242 L152,242 C154,260 156,278 152,294 L88,294 C84,278 86,260 88,242 Z" },
-
-  { id:"quadril", label:"Quadril / virilha",
-    d:"M88,294 L152,294 C156,308 156,318 152,326 L120,328 L88,326 C84,318 84,308 88,294 Z" },
-
-  { id:"braco-up-esq", label:"Braço esq. (cima)",
-    d:"M186,178 C196,200 198,224 196,244 L172,250 C172,228 170,206 168,188 Z" },
-  { id:"braco-up-dir", label:"Braço dir. (cima)",
-    d:"M54,178 C44,200 42,224 44,244 L68,250 C68,228 70,206 72,188 Z" },
-
-  { id:"cotovelo-esq", label:"Cotovelo esq.",
-    d:"M196,244 L172,250 L174,266 L196,260 Z" },
-  { id:"cotovelo-dir", label:"Cotovelo dir.",
-    d:"M44,244 L68,250 L66,266 L44,260 Z" },
+  { id:"biceps-esq", label:"Bíceps esq.",
+    d:"M210,182 C222,196 226,216 224,236 C218,244 210,246 200,242 C194,228 192,212 192,196 C194,188 200,184 210,182 Z" },
+  { id:"biceps-dir", label:"Bíceps dir.",
+    d:"M70,182 C58,196 54,216 56,236 C62,244 70,246 80,242 C86,228 88,212 88,196 C86,188 80,184 70,182 Z" },
 
   { id:"antebraco-esq", label:"Antebraço esq.",
-    d:"M196,260 L174,266 C176,290 178,316 184,338 L204,332 C204,310 202,284 196,260 Z" },
+    d:"M224,236 C230,256 232,280 232,304 C230,322 226,338 220,348 C212,346 206,338 204,326 L200,242 C210,246 218,244 224,236 Z" },
   { id:"antebraco-dir", label:"Antebraço dir.",
-    d:"M44,260 L66,266 C64,290 62,316 56,338 L36,332 C36,310 38,284 44,260 Z" },
+    d:"M56,236 C50,256 48,280 48,304 C50,322 54,338 60,348 C68,346 74,338 76,326 L80,242 C70,246 62,244 56,236 Z" },
 
-  { id:"mao-esq", label:"Mão esq.",
-    d:"M184,338 L204,332 C212,346 214,360 210,372 C204,380 192,378 184,372 C180,362 180,350 184,338 Z" },
-  { id:"mao-dir", label:"Mão dir.",
-    d:"M56,338 L36,332 C28,346 26,360 30,372 C36,380 48,378 56,372 C60,362 60,350 56,338 Z" },
+  { id:"abdomen", label:"Abdômen (reto)",
+    d:"M118,210 L162,210 C164,228 166,250 164,272 C162,286 158,296 156,302 L124,302 C122,296 118,286 116,272 C114,250 116,228 118,210 Z" },
 
-  { id:"coxa-esq", label:"Coxa esq.",
-    d:"M120,328 L152,326 C158,360 158,388 152,408 L122,408 Z" },
-  { id:"coxa-dir", label:"Coxa dir.",
-    d:"M120,328 L88,326 C82,360 82,388 88,408 L118,408 Z" },
+  { id:"obliquo-esq", label:"Oblíquo esq.",
+    d:"M162,210 C172,222 176,242 174,266 L168,294 C164,288 162,278 160,272 C162,250 164,228 162,210 Z" },
+  { id:"obliquo-dir", label:"Oblíquo dir.",
+    d:"M118,210 C108,222 104,242 106,266 L112,294 C116,288 118,278 120,272 C118,250 116,228 118,210 Z" },
 
-  { id:"joelho-esq", label:"Joelho esq.",
-    d:"M122,408 L152,408 L150,424 L122,424 Z" },
-  { id:"joelho-dir", label:"Joelho dir.",
-    d:"M118,408 L88,408 L90,424 L118,424 Z" },
+  { id:"quadriceps-esq", label:"Quadríceps esq.",
+    d:"M154,326 C172,330 184,360 186,400 L184,438 L156,438 C154,420 154,400 154,380 Z" },
+  { id:"quadriceps-dir", label:"Quadríceps dir.",
+    d:"M126,326 C108,330 96,360 94,400 L96,438 L124,438 C126,420 126,400 126,380 Z" },
 
-  { id:"panturrilha-esq", label:"Panturrilha esq.",
-    d:"M122,424 L150,424 C152,450 150,476 144,494 L122,494 Z" },
-  { id:"panturrilha-dir", label:"Panturrilha dir.",
-    d:"M118,424 L90,424 C88,450 90,476 96,494 L118,494 Z" },
+  { id:"joelho-frente-esq", label:"Joelho esq.",
+    d:"M156,438 L184,438 L182,458 L156,458 Z" },
+  { id:"joelho-frente-dir", label:"Joelho dir.",
+    d:"M124,438 L96,438 L98,458 L124,458 Z" },
 
-  { id:"pe-esq", label:"Pé esq.",
-    d:"M122,494 L144,494 C150,506 152,518 148,524 L122,524 Z" },
-  { id:"pe-dir", label:"Pé dir.",
-    d:"M118,494 L96,494 C90,506 88,518 92,524 L118,524 Z" },
+  { id:"canela-esq", label:"Canela esq. (tibial)",
+    d:"M156,458 L182,458 C184,486 184,514 180,536 L156,536 Z" },
+  { id:"canela-dir", label:"Canela dir. (tibial)",
+    d:"M124,458 L98,458 C96,486 96,514 100,536 L124,536 Z" },
 ];
 
+// ───────────────────────────────────────────────────────────────────────
+// BACK
+// ───────────────────────────────────────────────────────────────────────
+
+const BACK_SILHOUETTE = FRONT_SILHOUETTE;  // mesma silhueta externa
+
+const BACK_EXTRAS = `
+  <path class="bp-base bp-base--gray" d="M210,400 C222,400 234,406 240,418 C242,428 240,440 232,446 C220,450 208,446 204,438 C198,432 200,420 204,410 Z"/>
+  <path class="bp-base bp-base--gray" d="M70,400 C58,400 46,406 40,418 C38,428 40,440 48,446 C60,450 72,446 76,438 C82,432 80,420 76,410 Z"/>
+  <path class="bp-base bp-base--gray" d="M156,564 L194,564 C212,566 218,576 214,584 L156,584 Z"/>
+  <path class="bp-base bp-base--gray" d="M124,564 L86,564 C68,566 62,576 66,584 L124,584 Z"/>
+`;
+
+const BACK_LINES = `
+  <!-- coluna -->
+  <path d="M140,116 L140,326" />
+  <!-- linha do trapézio -->
+  <path d="M108,128 L140,180 L172,128" />
+  <!-- divisão glúteos -->
+  <path d="M140,326 L140,360" />
+`;
+
 const BACK_REGIONS = [
-  { id:"nuca", label:"Nuca / cabeça (atrás)",
-    d:"M120,12 C148,12 158,32 158,56 C158,82 142,96 120,96 C98,96 82,82 82,56 C82,32 92,12 120,12 Z" },
+  { id:"trapezio", label:"Trapézio",
+    d:"M124,116 L156,116 L172,128 L172,160 C168,180 154,200 140,212 C126,200 112,180 108,160 L108,128 Z" },
 
-  { id:"pescoco-back", label:"Pescoço (atrás)",
-    d:"M104,96 C108,108 110,112 110,120 L130,120 C130,112 132,108 136,96 C130,98 124,98 120,98 C116,98 110,98 104,96 Z" },
-
-  { id:"ombro-back-esq", label:"Ombro (atrás) esq.",
-    d:"M136,118 C160,120 184,134 200,158 L186,178 C176,170 162,158 150,148 C144,138 140,128 136,118 Z" },
-  { id:"ombro-back-dir", label:"Ombro (atrás) dir.",
-    d:"M104,118 C80,120 56,134 40,158 L54,178 C64,170 78,158 90,148 C96,138 100,128 104,118 Z" },
-
-  { id:"costas-cima-esq", label:"Costas (cima) esq.",
-    d:"M120,120 L150,148 C152,162 150,180 144,196 L120,200 Z" },
-  { id:"costas-cima-dir", label:"Costas (cima) dir.",
-    d:"M120,120 L90,148 C88,162 90,180 96,196 L120,200 Z" },
-
-  { id:"costas-meio", label:"Costas (meio)",
-    d:"M96,196 L144,196 L150,238 L90,238 Z" },
-
-  { id:"lombar", label:"Lombar",
-    d:"M90,238 L150,238 C152,260 152,278 148,294 L92,294 C88,278 88,260 90,238 Z" },
+  { id:"deltoide-back-esq", label:"Deltoide (atrás) esq.",
+    d:"M172,128 C200,134 222,148 232,170 C228,180 220,184 210,182 C198,176 188,164 174,148 L172,128 Z" },
+  { id:"deltoide-back-dir", label:"Deltoide (atrás) dir.",
+    d:"M108,128 C80,134 58,148 48,170 C52,180 60,184 70,182 C82,176 92,164 106,148 L108,128 Z" },
 
   { id:"triceps-esq", label:"Tríceps esq.",
-    d:"M186,178 C196,200 198,224 196,244 L172,250 C172,228 170,206 168,188 Z" },
+    d:"M210,182 C222,196 226,216 224,236 C218,244 210,246 200,242 C194,228 192,212 192,196 C194,188 200,184 210,182 Z" },
   { id:"triceps-dir", label:"Tríceps dir.",
-    d:"M54,178 C44,200 42,224 44,244 L68,250 C68,228 70,206 72,188 Z" },
-
-  { id:"cotovelo-back-esq", label:"Cotovelo (atrás) esq.",
-    d:"M196,244 L172,250 L174,266 L196,260 Z" },
-  { id:"cotovelo-back-dir", label:"Cotovelo (atrás) dir.",
-    d:"M44,244 L68,250 L66,266 L44,260 Z" },
+    d:"M70,182 C58,196 54,216 56,236 C62,244 70,246 80,242 C86,228 88,212 88,196 C86,188 80,184 70,182 Z" },
 
   { id:"antebraco-back-esq", label:"Antebraço (atrás) esq.",
-    d:"M196,260 L174,266 C176,290 178,316 184,338 L204,332 C204,310 202,284 196,260 Z" },
+    d:"M224,236 C230,256 232,280 232,304 C230,322 226,338 220,348 C212,346 206,338 204,326 L200,242 C210,246 218,244 224,236 Z" },
   { id:"antebraco-back-dir", label:"Antebraço (atrás) dir.",
-    d:"M44,260 L66,266 C64,290 62,316 56,338 L36,332 C36,310 38,284 44,260 Z" },
+    d:"M56,236 C50,256 48,280 48,304 C50,322 54,338 60,348 C68,346 74,338 76,326 L80,242 C70,246 62,244 56,236 Z" },
 
-  { id:"mao-back-esq", label:"Mão (atrás) esq.",
-    d:"M184,338 L204,332 C212,346 214,360 210,372 C204,380 192,378 184,372 C180,362 180,350 184,338 Z" },
-  { id:"mao-back-dir", label:"Mão (atrás) dir.",
-    d:"M56,338 L36,332 C28,346 26,360 30,372 C36,380 48,378 56,372 C60,362 60,350 56,338 Z" },
+  { id:"latissimo-esq", label:"Latíssimo esq.",
+    d:"M172,160 C188,180 194,210 192,238 L184,260 C176,254 168,238 164,220 C166,200 170,180 172,160 Z" },
+  { id:"latissimo-dir", label:"Latíssimo dir.",
+    d:"M108,160 C92,180 86,210 88,238 L96,260 C104,254 112,238 116,220 C114,200 110,180 108,160 Z" },
+
+  { id:"costas-meio", label:"Costas (meio)",
+    d:"M118,212 L162,212 C164,232 164,252 162,268 L118,268 C116,252 116,232 118,212 Z" },
+
+  { id:"lombar", label:"Lombar",
+    d:"M118,268 L162,268 C164,286 164,304 160,318 L120,318 C116,304 116,286 118,268 Z" },
 
   { id:"gluteo-esq", label:"Glúteo esq.",
-    d:"M120,294 L148,294 C156,308 156,322 150,332 L120,332 Z" },
+    d:"M140,318 L160,318 C172,326 178,344 174,360 L156,372 C148,366 144,354 140,344 Z" },
   { id:"gluteo-dir", label:"Glúteo dir.",
-    d:"M120,294 L92,294 C84,308 84,322 90,332 L120,332 Z" },
+    d:"M140,318 L120,318 C108,326 102,344 106,360 L124,372 C132,366 136,354 140,344 Z" },
 
-  { id:"post-coxa-esq", label:"Posterior coxa esq.",
-    d:"M120,332 L150,332 C156,366 156,394 150,412 L122,412 Z" },
-  { id:"post-coxa-dir", label:"Posterior coxa dir.",
-    d:"M120,332 L90,332 C84,366 84,394 90,412 L118,412 Z" },
+  { id:"hamstring-esq", label:"Hamstring esq.",
+    d:"M156,372 L184,376 C188,400 188,424 184,440 L156,440 C154,420 154,400 156,372 Z" },
+  { id:"hamstring-dir", label:"Hamstring dir.",
+    d:"M124,372 L96,376 C92,400 92,424 96,440 L124,440 C126,420 126,400 124,372 Z" },
 
-  { id:"jarrete-esq", label:"Jarrete esq.",
-    d:"M122,412 L150,412 L148,428 L122,428 Z" },
-  { id:"jarrete-dir", label:"Jarrete dir.",
-    d:"M118,412 L90,412 L92,428 L118,428 Z" },
+  { id:"joelho-back-esq", label:"Joelho (atrás) esq.",
+    d:"M156,440 L184,440 L182,458 L156,458 Z" },
+  { id:"joelho-back-dir", label:"Joelho (atrás) dir.",
+    d:"M124,440 L96,440 L98,458 L124,458 Z" },
 
-  { id:"post-panturrilha-esq", label:"Panturrilha (atrás) esq.",
-    d:"M122,428 L148,428 C150,454 148,478 142,496 L122,496 Z" },
-  { id:"post-panturrilha-dir", label:"Panturrilha (atrás) dir.",
-    d:"M118,428 L92,428 C90,454 92,478 98,496 L118,496 Z" },
+  { id:"panturrilha-esq", label:"Panturrilha esq.",
+    d:"M156,458 L182,458 C184,486 184,514 180,536 L156,536 Z" },
+  { id:"panturrilha-dir", label:"Panturrilha dir.",
+    d:"M124,458 L98,458 C96,486 96,514 100,536 L124,536 Z" },
 ];
 
 function buildBodySvg(regions, view){
-  const paths = regions.map(r =>
+  const silhouette = view === "front" ? FRONT_SILHOUETTE : BACK_SILHOUETTE;
+  const extras    = view === "front" ? FRONT_EXTRAS    : BACK_EXTRAS;
+  const lines     = view === "front" ? FRONT_LINES     : BACK_LINES;
+
+  const muscles = regions.map(r =>
     `<path class="bp-region" data-region="${r.id}" data-label="${r.label}" d="${r.d}"><title>${r.label}</title></path>`
   ).join("");
-  // contorno externo sutil que envolve todo o corpo (decorativo, não clicável)
-  const outline = `
-    <path class="bp-outline" pointer-events="none"
-      d="M120,12 C148,12 158,32 158,56 C158,82 142,96 120,96 C98,96 82,82 82,56 C82,32 92,12 120,12 Z
-         M104,96 C108,108 110,112 110,120 C80,120 56,134 40,158 C44,200 42,224 44,244 C36,310 26,346 30,372
-                  C36,380 48,378 56,372 C60,362 60,350 56,338 C64,290 68,250 68,250 C70,228 72,206 72,188
-         M136,96 C132,108 130,112 130,120 C160,120 184,134 200,158 C196,200 198,224 196,244 C204,310 214,346 210,372
-                  C204,380 192,378 184,372 C180,362 180,350 184,338 C176,290 172,250 172,250 C170,228 168,206 168,188
-         M88,326 C82,360 82,388 88,408 C88,450 96,494 96,494 C90,506 88,518 92,524 L148,524
-                  C152,518 150,506 144,494 C150,476 152,450 152,408 C158,388 158,360 152,326"/>
-  `;
+
   return `
-    <svg viewBox="0 0 240 540" xmlns="http://www.w3.org/2000/svg" role="img"
+    <svg viewBox="0 0 280 600" xmlns="http://www.w3.org/2000/svg" role="img"
          aria-label="Selecione regiões do corpo (${view === 'front' ? 'frente' : 'costas'})">
-      <g class="bp-figure-g">${paths}${outline}</g>
+      <g class="bp-base-g">
+        <path class="bp-base" d="${silhouette}"/>
+        ${extras}
+      </g>
+      <g class="bp-muscles-g">${muscles}</g>
+      <g class="bp-lines-g" pointer-events="none">${lines}</g>
     </svg>
   `;
 }
