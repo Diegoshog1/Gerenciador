@@ -1,0 +1,6 @@
+ID_VIAGEM,STATUS,DESTINO_CIDADE,DESTINO_PAIS,DATA_IDA,DATA_VOLTA,DURACAO_DIAS,ORCAMENTO_TOTAL,R$JA_GASTO,R$SALDO,MOEDA,PASSAGEM_R$,HOSPEDAGEM_R$,SEGURO_R$,ALIMENTACAO_R$,PASSEIOS_R$,TRANSPORTE_LOCAL_R$,OBSERVACOES,GASTO_REAL_TOTAL,DIFERENCA_VS_ORCAMENTO
+1,Planejando,,,,,=IF(AND(E2<>"",F2<>""),F2-E2+1,""),,,,,,,,,,,=SUM(L2:Q2),=IF(H2<>"",H2-S2,"")
+2,Ideia,,,,,=IF(AND(E3<>"",F3<>""),F3-E3+1,""),,,,,,,,,,,=SUM(L3:Q3),=IF(H3<>"",H3-S3,"")
+3,Reservada,,,,,=IF(AND(E4<>"",F4<>""),F4-E4+1,""),,,,,,,,,,,=SUM(L4:Q4),=IF(H4<>"",H4-S4,"")
+4,Concluída,,,,,=IF(AND(E5<>"",F5<>""),F5-E5+1,""),,,,,,,,,,,=SUM(L5:Q5),=IF(H5<>"",H5-S5,"")
+5,Cancelada,,,,,=IF(AND(E6<>"",F6<>""),F6-E6+1,""),,,,,,,,,,,=SUM(L6:Q6),=IF(H6<>"",H6-S6,"")
