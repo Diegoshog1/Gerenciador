@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0d12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Histórias Misteriosas</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #0d0d12;
+      --surface: #16161f;
+      --surface2: #1e1e2a;
+      --border: #2a2a3a;
+      --text: #e2e2f0;
+      --muted: #6b6b8a;
+      --purple: #8b5cf6;
+      --purple-light: #a78bfa;
+      --teal: #14b8a6;
+      --green: #10b981;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-t: env(safe-area-inset-top, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html { height: 100%; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      overscroll-behavior: none;
+    }
+
+    /* ═══════════════════════
+       SCREENS
+    ═══════════════════════ */
+    .screen { display: none; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ═══════════════════════
+       HOME
+    ═══════════════════════ */
+    #home {
+      min-height: 100svh;
+      padding: calc(var(--safe-t) + 28px) 16px calc(var(--safe-b) + 32px);
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .home-header { text-align: center; margin-bottom: 32px; }
+
+    .home-title {
+      font-size: clamp(1.7rem, 6vw, 2.6rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--purple-light) 20%, var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .home-sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .how-to {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      text-align: left;
+    }
+
+    .how-to-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .how-to-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .story-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .story-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      touch-action: manipulation;
+    }
+
+    .story-card:active { transform: scale(0.98); }
+
+    .card-left { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+    .card-emoji { font-size: 2rem; line-height: 1; }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-easy   { background: rgba(16,185,129,.15); color: #34d399; }
+    .badge-medium { background: rgba(245,158,11,.15);  color: #fbbf24; }
+    .badge-hard   { background: rgba(244,63,94,.15);   color: #fb7185; }
+
+    .card-right { flex: 1; min-width: 0; }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .card-preview {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════
+       GAME
+    ═══════════════════════ */
+    #game {
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+      /* height set via JS for keyboard handling */
+      height: 100svh;
+      padding: calc(var(--safe-t) + 12px) 14px 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+
+    .btn-back {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0 14px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+    .btn-back:active { background: var(--surface2); }
+
+    #game-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Scenario: collapsible on mobile */
+    .scenario-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .scenario-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .scenario-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--purple-light);
+      font-weight: 700;
+    }
+
+    .scenario-toggle {
+      font-size: 0.7rem;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+
+    .scenario-toggle.open { transform: rotate(180deg); }
+
+    .scenario-body {
+      padding: 0 16px 14px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .scenario-body.open { max-height: 300px; }
+
+    #scenario-text {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* Chat */
+    .chat-log {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 2px 2px 10px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .chat-log::-webkit-scrollbar { width: 3px; }
+    .chat-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .empty-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+      text-align: center;
+      gap: 8px;
+      padding: 20px;
+    }
+
+    .empty-chat-icon { font-size: 2.5rem; opacity: 0.5; }
+
+    .msg-pair { display: flex; flex-direction: column; gap: 6px; }
+
+    .msg-q {
+      align-self: flex-end;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 18px 18px 4px 18px;
+      padding: 10px 15px;
+      font-size: 0.875rem;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .msg-a {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 18px 18px 18px 4px;
+      padding: 10px 15px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      max-width: 85%;
+    }
+
+    .msg-a.sim { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.25); color: #34d399; }
+    .msg-a.nao { background: rgba(244,63,94,.1);  border: 1px solid rgba(244,63,94,.25);  color: #fb7185; }
+    .msg-a.irr { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); color: #fbbf24; }
+
+    .hint-msg {
+      background: rgba(139,92,246,.08);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: 12px;
+      padding: 12px 15px;
+      font-size: 0.85rem;
+      color: var(--purple-light);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+
+    /* Bottom controls — fixed above keyboard */
+    .game-bottom {
+      flex-shrink: 0;
+      padding: 10px 0 calc(var(--safe-b) + 12px);
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .q-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 14px;
+      height: 48px;
+      color: var(--text);
+      font-size: 16px; /* prevents iOS zoom */
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .q-input:focus { border-color: var(--purple); }
+    .q-input::placeholder { color: var(--muted); font-size: 0.875rem; }
+
+    .btn-send {
+      height: 48px;
+      width: 48px;
+      border-radius: 12px;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      touch-action: manipulation;
+      transition: opacity 0.15s;
+    }
+    .btn-send:active { opacity: 0.8; }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+    }
+
+    .btn-action {
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      font-weight: 500;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .btn-action:active { background: var(--surface2); }
+    .btn-action:disabled { opacity: 0.35; pointer-events: none; }
+
+    .btn-solve {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+    .btn-solve:active { opacity: 0.85; }
+
+    .btn-danger { color: #fb7185; border-color: rgba(244,63,94,.25); }
+    .btn-danger:active { background: rgba(244,63,94,.1); }
+
+    /* ═══════════════════════
+       SOLUTION
+    ═══════════════════════ */
+    #solution {
+      min-height: 100svh;
+      padding: calc(var(--safe-t) + 32px) 16px calc(var(--safe-b) + 40px);
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+      align-items: center;
+      text-align: center;
+    }
+
+    .result-emoji { font-size: 4rem; margin-bottom: 12px; }
+    .result-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+    .result-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+    .sol-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 20px;
+      margin-bottom: 24px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .sol-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--purple-light);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    #solution-text { font-size: 0.95rem; line-height: 1.75; }
+
+    .score-row {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .score-item {
+      flex: 1;
+      padding: 16px 8px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .score-item:last-child { border-right: none; }
+
+    .score-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: block;
+      background: linear-gradient(135deg, var(--purple-light), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .score-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+    .btn-replay {
+      background: linear-gradient(135deg, var(--purple), var(--teal));
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 0 36px;
+      height: 54px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+      touch-action: manipulation;
+      transition: opacity 0.15s;
+    }
+    .btn-replay:active { opacity: 0.85; }
+
+    /* ═══════════════════════
+       ANIMATIONS
+    ═══════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim { animation: fadeUp 0.22s ease forwards; }
+
+    /* ═══════════════════════
+       DESKTOP TWEAKS
+    ═══════════════════════ */
+    @media (min-width: 540px) {
+      .story-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .story-card { flex-direction: column; gap: 8px; }
+      .card-left { flex-direction: row; align-items: center; }
+      .how-to { flex-direction: row; justify-content: center; }
+      .home-title { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════ HOME ════════ -->
+<div id="home" class="screen active">
+  <div class="home-header">
+    <h1 class="home-title">🔍 Histórias<br>Misteriosas</h1>
+    <p class="home-sub">Faça perguntas de sim/não para desvendar o mistério!</p>
+    <div class="how-to">
+      <div class="how-to-item">
+        <span class="how-to-icon">❓</span>
+        <span>Pergunte sim ou não</span>
+      </div>
+      <div class="how-to-item">
+        <span class="how-to-icon">💡</span>
+        <span>Use dicas se travar</span>
+      </div>
+      <div class="how-to-item">
+        <span class="how-to-icon">🏆</span>
+        <span>Descubra o mistério</span>
+      </div>
+    </div>
+  </div>
+  <div class="story-grid" id="story-grid"></div>
+</div>
+
+<!-- ════════ GAME ════════ -->
+<div id="game" class="screen">
+  <div class="topbar">
+    <button class="btn-back" id="btn-back">← Voltar</button>
+    <span id="game-title"></span>
+    <div class="stats">
+      <span id="stat-q">❓0</span>
+      <span id="stat-h">💡3</span>
+    </div>
+  </div>
+
+  <div class="scenario-wrap">
+    <div class="scenario-head" id="scenario-head">
+      <span class="scenario-label">📖 O Mistério</span>
+      <span class="scenario-toggle open" id="scenario-toggle">▲</span>
+    </div>
+    <div class="scenario-body open" id="scenario-body">
+      <p id="scenario-text"></p>
+    </div>
+  </div>
+
+  <div class="chat-log" id="chat-log">
+    <div class="empty-chat">
+      <span class="empty-chat-icon">🕵️</span>
+      <span>Faça sua primeira pergunta!</span>
+    </div>
+  </div>
+
+  <div class="game-bottom">
+    <div class="input-row">
+      <input class="q-input" id="q-input" type="text"
+        placeholder="É uma pessoa? Acontece de dia?"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="btn-send" id="btn-ask" aria-label="Perguntar">➤</button>
+    </div>
+    <div class="action-row">
+      <button class="btn-action" id="btn-hint">💡 Dica (3)</button>
+      <button class="btn-action btn-solve" id="btn-solve">✓ Resolvi!</button>
+      <button class="btn-action btn-danger" id="btn-giveup">🏳 Desistir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SOLUTION ════════ -->
+<div id="solution" class="screen">
+  <div class="result-emoji" id="result-emoji">🎉</div>
+  <h2 class="result-title" id="result-title"></h2>
+  <p class="result-sub" id="result-sub"></p>
+
+  <div class="sol-card">
+    <div class="sol-label">✨ O Mistério Revelado</div>
+    <p id="solution-text"></p>
+  </div>
+
+  <div class="score-row">
+    <div class="score-item">
+      <span class="score-val" id="sc-q">0</span>
+      <div class="score-lbl">perguntas</div>
+    </div>
+    <div class="score-item">
+      <span class="score-val" id="sc-h">0</span>
+      <div class="score-lbl">dicas</div>
+    </div>
+    <div class="score-item">
+      <span class="score-val" id="sc-pts">—</span>
+      <div class="score-lbl">pontos</div>
+    </div>
+  </div>
+
+  <button class="btn-replay" id="btn-replay">🔄 Escolher outro mistério</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// HISTÓRIAS
+// ═══════════════════════════════════════════
+const STORIES = [
+  {
+    id: 1, emoji: '🏢', title: 'O Elevador', difficulty: 'Fácil',
+    scenario: 'Pedro mora no 15º andar de um prédio. Toda manhã, ele desce de elevador até o térreo sem problemas. Porém, toda tarde ao voltar do trabalho, Pedro sobe de elevador apenas até o 7º andar e sobe o resto a pé — mesmo estando cansado. Nos dias de chuva, ele sobe de elevador diretamente até o 15º andar.',
+    solution: 'Pedro é uma pessoa de baixa estatura e não consegue alcançar os botões acima do 7 no painel do elevador. De manhã, o botão "térreo" fica na parte de baixo do painel, então consegue apertar normalmente. Nos dias de chuva, usa o guarda-chuva como extensão do braço para alcançar o botão do 15º andar.',
+    hints: ['Pense em diferenças físicas entre as pessoas.', 'Existe algo que Pedro consegue fazer nos dias de chuva que normalmente não consegue.', 'O painel de botões do elevador é a chave do mistério.'],
+    qna: [
+      { k: ['baixo','estatura','altura','pequen','anao','nao alcanca'], a: 'sim' },
+      { k: ['guarda chuva','chuva','chover','guarda-chuva'], a: 'sim' },
+      { k: ['botao','painel','apertar','alcancar','pressionar'], a: 'sim' },
+      { k: ['objeto','ferramenta','bengala','usar algo'], a: 'sim' },
+      { k: ['trabalha','emprego','escritorio'], a: 'sim' },
+      { k: ['mora','apartamento'], a: 'sim' },
+      { k: ['doente','hospital','medico','lesao'], a: 'nao' },
+      { k: ['preguica'], a: 'nao' },
+      { k: ['exercicio','academia','treino'], a: 'nao' },
+      { k: ['gordo','peso','dieta'], a: 'nao' },
+      { k: ['medo','fobia'], a: 'nao' },
+      { k: ['elevador quebrado','defeito'], a: 'nao' },
+    ]
+  },
+  {
+    id: 2, emoji: '😤', title: 'O Soluço', difficulty: 'Fácil',
+    scenario: 'Carla tinha soluço há duas horas e nenhum remédio caseiro funcionava. Um homem que ela nunca havia visto entrou em seu escritório e gritou "BOO!" sem nenhuma razão aparente, depois saiu correndo. Carla ficou irritada por um instante... mas logo ligou para agradecer ao homem.',
+    solution: 'O homem era o namorado de Carla. Ela havia ligado para ele desesperada com o soluço e pedido ajuda. Ele foi até o escritório e a assustou propositalmente. O susto funcionou e curou o soluço na hora — ela ficou aliviada e agradecida.',
+    hints: ['Pense no que acontece fisicamente quando uma pessoa leva um susto.', 'Remédios caseiros para soluço frequentemente envolvem sustos.', 'O "desconhecido" não era tão desconhecido assim.'],
+    qna: [
+      { k: ['soluco','solucar','hipo'], a: 'sim' },
+      { k: ['susto','assustar','assustr'], a: 'sim' },
+      { k: ['namorado','conhecia'], a: 'sim' },
+      { k: ['curar','curou','tratamento'], a: 'sim' },
+      { k: ['combinado','planejado','pediu','ligou'], a: 'sim' },
+      { k: ['trabalho','escritorio'], a: 'sim' },
+      { k: ['amor','relacionamento'], a: 'sim' },
+      { k: ['ladrao','roubo','crime'], a: 'nao' },
+      { k: ['doente','hospital','medico'], a: 'nao' },
+      { k: ['dinheiro','premio'], a: 'nao' },
+    ]
+  },
+  {
+    id: 3, emoji: '🎁', title: 'A Caixa Vazia', difficulty: 'Fácil',
+    scenario: 'No aniversário da namorada, Lucas deu a ela uma caixa de presente completamente vazia. Ela abriu, olhou para dentro... e disse: "É exatamente o que eu queria!" Ficou emocionada.',
+    solution: 'A namorada havia pedido a Lucas que lhe desse "espaço" — mais liberdade e tempo para si mesma no relacionamento. Lucas interpretou de forma criativa e simbólica, dando a ela uma caixa literalmente vazia para representar o espaço pedido. Foi a maneira mais carinhosa de mostrar que ele havia ouvido e respeitado o desejo dela.',
+    hints: ['O presente era simbólico, não material.', 'A namorada havia pedido algo específico a Lucas recentemente.', 'Pense no significado de "espaço" num relacionamento.'],
+    qna: [
+      { k: ['espaco','liberdade','independencia','tempo pessoal'], a: 'sim' },
+      { k: ['simbolico','metafora','criativo','significado'], a: 'sim' },
+      { k: ['pediu','queria','pedido'], a: 'sim' },
+      { k: ['vazia','vazio','nada dentro'], a: 'sim' },
+      { k: ['amor','carinho','relacionamento'], a: 'sim' },
+      { k: ['emocionada','feliz','gostou'], a: 'sim' },
+      { k: ['surpresa'], a: 'nao' },
+      { k: ['dinheiro','caro','barato'], a: 'nao' },
+      { k: ['joia','roupa','objeto fisico'], a: 'nao' },
+      { k: ['piada','brincadeira'], a: 'nao' },
+    ]
+  },
+  {
+    id: 4, emoji: '📝', title: 'O Teste ao Contrário', difficulty: 'Médio',
+    scenario: 'Ana respondeu todas as questões de uma prova de forma errada propositalmente. A professora leu as respostas, sorriu, e lhe deu nota máxima — a única nota 10 da turma.',
+    solution: 'O enunciado do teste dizia: "Para cada questão, marque a alternativa INCORRETA." Era um exercício de atenção e raciocínio lógico. Todos os outros alunos, sem ler o enunciado com cuidado, marcaram as respostas corretas — e tiraram zero. Só Ana leu com atenção e entendeu a pegadinha.',
+    hints: ['A instrução do teste era diferente do esperado.', 'Os outros alunos da turma foram bem ou mal?', 'Ler o enunciado com atenção era mais importante que saber o conteúdo.'],
+    qna: [
+      { k: ['instrucao','enunciado','ler','atencao','leu'], a: 'sim' },
+      { k: ['errado','incorreto','errar de proposito'], a: 'sim' },
+      { k: ['raciocinio','logica','pegadinha','armadilha'], a: 'sim' },
+      { k: ['outros alunos','turma','colegas','todos erraram'], a: 'sim' },
+      { k: ['cola','fraude','trapaca','copiou'], a: 'nao' },
+      { k: ['sorte','acidente'], a: 'nao' },
+      { k: ['combinado antes','professora sabia antes'], a: 'nao' },
+      { k: ['matematica','portugues','historia'], a: 'irr' },
+    ]
+  },
+  {
+    id: 5, emoji: '🏃', title: 'A Maratona', difficulty: 'Médio',
+    scenario: 'Marina treinou por um ano inteiro para uma maratona. No dia da prova, chegou intencionalmente em último lugar. Foi a corredora mais aplaudida de toda a competição.',
+    solution: 'Marina correu ao lado de um atleta com deficiência visual durante os 42 km, servindo como guia e parceira. Ela ajustou seu ritmo ao dele, dando suporte e incentivo do começo ao fim. O público se emocionou com o gesto e o duo foi ovacionado na chegada.',
+    hints: ['Marina não estava sozinha durante a corrida.', 'Ela correu ao lado de alguém especial.', 'Pense em como atletas com deficiência visual participam de maratonas.'],
+    qna: [
+      { k: ['deficiencia','deficiente','cego','invisual'], a: 'sim' },
+      { k: ['guia','parceiro','dupla','acompanhou','junto'], a: 'sim' },
+      { k: ['ultimo','devagar','lento'], a: 'sim' },
+      { k: ['aplausos','emocao','publico','ovacao'], a: 'sim' },
+      { k: ['ajudou','solidariedade','apoio'], a: 'sim' },
+      { k: ['lesao','machucado','doente'], a: 'nao' },
+      { k: ['desistiu','abandonou'], a: 'nao' },
+      { k: ['ganhou','venceu','primeiro lugar'], a: 'nao' },
+    ]
+  },
+  {
+    id: 6, emoji: '☕', title: 'O Café com Açúcar', difficulty: 'Médio',
+    scenario: 'Todos os dias, Marcos pedia café sem açúcar na padaria. Certa manhã, a atendente errou e colocou açúcar. Marcos percebeu o erro ao tomar o primeiro gole — mas não reclamou e saiu sorrindo, mais feliz do que nunca.',
+    solution: 'Marcos havia tentado parar de consumir açúcar há meses e sofria com cada café amargo. Ao tomar o café com açúcar naquele dia, percebeu que o sabor doce não lhe agradava mais — seu paladar havia mudado sem que ele percebesse. Saiu feliz por descobrir que havia finalmente superado o vício.',
+    hints: ['Marcos estava tentando mudar algum hábito alimentar há meses.', 'A reação de Marcos ao sabor foi diferente do que ele esperava.', 'Pense no que acontece com o paladar quando mudamos hábitos por muito tempo.'],
+    qna: [
+      { k: ['vicio','habito','parar','largar'], a: 'sim' },
+      { k: ['acucar','doce','adocar'], a: 'sim' },
+      { k: ['paladar','gosto','sabor'], a: 'sim' },
+      { k: ['dieta','saude','alimentacao'], a: 'sim' },
+      { k: ['erro','engano','errou'], a: 'sim' },
+      { k: ['mudou','mudanca'], a: 'sim' },
+      { k: ['reclamar','bravo','reclamou'], a: 'nao' },
+      { k: ['amor','namoro'], a: 'nao' },
+      { k: ['dinheiro','preco'], a: 'nao' },
+    ]
+  },
+  {
+    id: 7, emoji: '😴', title: 'O Dorminhoco', difficulty: 'Difícil',
+    scenario: 'Daniel adormeceu durante uma apresentação importante no trabalho. Quando acordou, seus colegas e o chefe estavam aplaudindo de pé. Na mesma semana, foi promovido.',
+    solution: 'Daniel é pesquisador especialista em ciência do sono. Sua apresentação era sobre os benefícios de cochilos rápidos para produtividade. Como demonstração ao vivo, havia combinado com o chefe de dormir por exatamente 20 minutos enquanto os slides passavam automaticamente. Acordou na hora certa, comprovando na prática o que pregava.',
+    hints: ['A área de especialidade de Daniel é essencial para entender o mistério.', 'O sono de Daniel foi planejado, não um acidente.', 'Pense em que tipo de profissional faria isso propositalmente numa apresentação.'],
+    qna: [
+      { k: ['sono','dormir','cochilo','sonologia'], a: 'sim' },
+      { k: ['pesquisador','especialista','cientista'], a: 'sim' },
+      { k: ['planejado','combinado','proposital'], a: 'sim' },
+      { k: ['apresentacao','slides','palestra'], a: 'sim' },
+      { k: ['demonstracao','exemplo','prova'], a: 'sim' },
+      { k: ['promovido','chefe'], a: 'sim' },
+      { k: ['preguica','cansado'], a: 'nao' },
+      { k: ['acidente','engano','descuido'], a: 'nao' },
+      { k: ['doente','remedio'], a: 'nao' },
+    ]
+  },
+  {
+    id: 8, emoji: '🍫', title: 'O Prato Horroroso', difficulty: 'Difícil',
+    scenario: 'Juliana participou de um concurso culinário e criou o prato mais absurdo da competição: chocolate derretido com sardinha e sorvete de alho. Os juízes deram a ela a nota mais baixa de sabor... mas ela saiu do evento com o segundo maior prêmio em dinheiro.',
+    solution: 'O concurso tinha dois prêmios: "Melhor sabor" e "Prato mais criativo e inusitado". Uma empresa de culinária experimental patrocinava o segundo prêmio buscando receitas absurdas para seu canal no YouTube. Juliana foi a única participante que leu o regulamento completo e sabia desse segundo prêmio — e planejou sua receita absurda de propósito.',
+    hints: ['O concurso tinha mais de um tipo de premiação.', 'Uma empresa estava interessada em receitas incomuns por uma razão específica.', 'Juliana fez algo antes de cozinhar que os outros participantes não fizeram.'],
+    qna: [
+      { k: ['segundo premio','outro premio','dois premios','mais de um'], a: 'sim' },
+      { k: ['empresa','patrocinador','youtube','canal'], a: 'sim' },
+      { k: ['regulamento','regras','leu'], a: 'sim' },
+      { k: ['criativo','incomum','absurdo','inusitado'], a: 'sim' },
+      { k: ['planejado','proposital','de proposito'], a: 'sim' },
+      { k: ['primeiro lugar','melhor sabor'], a: 'nao' },
+      { k: ['gostoso','delicioso'], a: 'nao' },
+      { k: ['sorte','acidente'], a: 'nao' },
+      { k: ['chef famosa','profissional'], a: 'nao' },
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════
+let currentStory = null;
+let questionsAsked = 0;
+let hintsUsed = 0;
+let hintsLeft = 3;
+let scenarioOpen = true;
+
+// ═══════════════════════════════════════════
+// UTILITÁRIOS
+// ═══════════════════════════════════════════
+function norm(s) {
+  return s.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ');
+}
+
+function getAnswer(question) {
+  const q = norm(question);
+  for (const { k, a } of currentStory.qna) {
+    for (const key of k) {
+      if (q.includes(norm(key))) return a;
+    }
+  }
+  return 'irr';
+}
+
+function calcScore() {
+  return Math.max(0, 100 - questionsAsked * 3 - hintsUsed * 15);
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function vibrate(ms) {
+  try { navigator.vibrate && navigator.vibrate(ms); } catch (_) {}
+}
+
+// ═══════════════════════════════════════════
+// TECLADO VIRTUAL — ajuste de altura
+// ═══════════════════════════════════════════
+function syncGameHeight() {
+  const game = document.getElementById('game');
+  if (!game.classList.contains('active')) return;
+  const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  game.style.height = h + 'px';
+  const log = document.getElementById('chat-log');
+  log.scrollTop = log.scrollHeight;
+}
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', syncGameHeight);
+  window.visualViewport.addEventListener('scroll', syncGameHeight);
+}
+
+// ═══════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════
+function renderHome() {
+  const diffClass = { 'Fácil':'badge-easy', 'Médio':'badge-medium', 'Difícil':'badge-hard' };
+  document.getElementById('story-grid').innerHTML = STORIES.map(s => `
+    <div class="story-card" onclick="startGame(${s.id})">
+      <div class="card-left">
+        <span class="card-emoji">${s.emoji}</span>
+        <span class="badge ${diffClass[s.difficulty]}">${s.difficulty}</span>
+      </div>
+      <div class="card-right">
+        <div class="card-title">${s.title}</div>
+        <p class="card-preview">${s.scenario}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+// JOGO
+// ═══════════════════════════════════════════
+function startGame(id) {
+  currentStory = STORIES.find(s => s.id === id);
+  questionsAsked = 0;
+  hintsUsed = 0;
+  hintsLeft = 3;
+  scenarioOpen = true;
+
+  document.getElementById('game-title').textContent = `${currentStory.emoji} ${currentStory.title}`;
+  document.getElementById('scenario-text').textContent = currentStory.scenario;
+  document.getElementById('scenario-body').classList.add('open');
+  document.getElementById('scenario-toggle').classList.add('open');
+  document.getElementById('chat-log').innerHTML = `
+    <div class="empty-chat">
+      <span class="empty-chat-icon">🕵️</span>
+      <span>Faça sua primeira pergunta!</span>
+    </div>`;
+  document.getElementById('stat-q').textContent = '❓0';
+  document.getElementById('stat-h').textContent = '💡3';
+  document.getElementById('btn-hint').textContent = '💡 Dica (3)';
+  document.getElementById('btn-hint').disabled = false;
+  document.getElementById('q-input').value = '';
+
+  show('game');
+  syncGameHeight();
+  setTimeout(() => document.getElementById('q-input').focus(), 300);
+}
+
+function askQuestion() {
+  const input = document.getElementById('q-input');
+  const question = input.value.trim();
+  if (!question) return;
+
+  const ans = getAnswer(question);
+  questionsAsked++;
+  input.value = '';
+
+  const log = document.getElementById('chat-log');
+  const empty = log.querySelector('.empty-chat');
+  if (empty) empty.remove();
+
+  // Auto-collapse scenario after first question
+  if (questionsAsked === 1 && scenarioOpen) {
+    toggleScenario(false);
+  }
+
+  const cfg = {
+    sim: { icon: '✅', label: 'Sim!', cls: 'sim' },
+    nao: { icon: '❌', label: 'Não.', cls: 'nao' },
+    irr: { icon: '🤷', label: 'Irrelevante para o mistério.', cls: 'irr' }
+  }[ans];
+
+  vibrate(ans === 'sim' ? 30 : ans === 'nao' ? [20, 30, 20] : 10);
+
+  const pair = document.createElement('div');
+  pair.className = 'msg-pair anim';
+  pair.innerHTML = `
+    <div class="msg-q">${escHtml(question)}</div>
+    <div class="msg-a ${cfg.cls}"><span>${cfg.icon}</span><span>${cfg.label}</span></div>
+  `;
+  log.appendChild(pair);
+  log.scrollTop = log.scrollHeight;
+
+  document.getElementById('stat-q').textContent = `❓${questionsAsked}`;
+}
+
+function toggleScenario(forceOpen) {
+  const body = document.getElementById('scenario-body');
+  const toggle = document.getElementById('scenario-toggle');
+  scenarioOpen = forceOpen !== undefined ? forceOpen : !scenarioOpen;
+  body.classList.toggle('open', scenarioOpen);
+  toggle.classList.toggle('open', scenarioOpen);
+}
+
+function useHint() {
+  if (hintsLeft === 0) return;
+  const hint = currentStory.hints[hintsUsed];
+  hintsUsed++;
+  hintsLeft--;
+
+  const log = document.getElementById('chat-log');
+  const empty = log.querySelector('.empty-chat');
+  if (empty) empty.remove();
+
+  const el = document.createElement('div');
+  el.className = 'hint-msg anim';
+  el.innerHTML = `<span>💡</span><span><strong>Dica ${hintsUsed}:</strong> ${hint}</span>`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+
+  document.getElementById('stat-h').textContent = `💡${hintsLeft}`;
+  document.getElementById('btn-hint').textContent = `💡 Dica (${hintsLeft})`;
+  if (hintsLeft === 0) document.getElementById('btn-hint').disabled = true;
+  vibrate(15);
+}
+
+function endGame(solved) {
+  document.getElementById('result-emoji').textContent = solved ? '🎉' : '😅';
+  document.getElementById('result-title').textContent = solved ? 'Mistério Resolvido!' : 'Não foi dessa vez...';
+  document.getElementById('result-sub').textContent = solved
+    ? 'Excelente raciocínio, detetive!'
+    : 'Mas entender o mistério também é aprender!';
+  document.getElementById('solution-text').textContent = currentStory.solution;
+  document.getElementById('sc-q').textContent = questionsAsked;
+  document.getElementById('sc-h').textContent = hintsUsed;
+  document.getElementById('sc-pts').textContent = solved ? calcScore() : '—';
+  vibrate(solved ? [30, 50, 80] : 40);
+  show('solution');
+}
+
+// ═══════════════════════════════════════════
+// EVENTOS
+// ═══════════════════════════════════════════
+document.getElementById('btn-ask').addEventListener('click', askQuestion);
+document.getElementById('q-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); askQuestion(); }
+});
+document.getElementById('scenario-head').addEventListener('click', () => toggleScenario());
+document.getElementById('btn-back').addEventListener('click', () => show('home'));
+document.getElementById('btn-hint').addEventListener('click', useHint);
+document.getElementById('btn-solve').addEventListener('click', () => endGame(true));
+document.getElementById('btn-giveup').addEventListener('click', () => endGame(false));
+document.getElementById('btn-replay').addEventListener('click', () => show('home'));
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+renderHome();
+</script>
+</body>
+</html>
