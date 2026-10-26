@@ -7,6 +7,9 @@ on:
       - ".github/workflows/tv-launcher.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,3 +30,11 @@ jobs:
         with:
           name: Vidro-apk
           path: Vidro.apk
+      - name: Publicar APK na branch vidro-apk
+        run: |
+          mkdir out && cp Vidro.apk out/ && cd out
+          git init -q -b vidro-apk
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add Vidro.apk && git commit -qm "Vidro.apk de ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" vidro-apk
