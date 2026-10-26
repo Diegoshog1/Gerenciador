@@ -359,12 +359,53 @@ if (window.TV) (() => {
     $("#apps").scrollLeft = 0;
   }
   buildApps();
-  window.onTvResume = buildApps;
+
+  /* continuar assistindo: fila do Android TV; se vazia, apps usados por último */
+  const ago = t => { const m = (Date.now() - t) / 6e4; return m < 60 ? `há ${Math.max(1, Math.round(m))} min` : m < 1440 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} d`; };
+  function card(o) {
+    const d = document.createElement("div");
+    d.className = "card"; d.tabIndex = 0; d.setAttribute("data-nav", "");
+    Object.assign(d.dataset, o.data || {});
+    if (o.wide) d.style.width = "900px";
+    const t = document.createElement("div");
+    t.className = "thumb";
+    t.style.background = o.img ? `#141726 url("${o.img.replace(/"/g, "%22")}") center/${o.fit || "cover"} no-repeat` : "linear-gradient(120deg,#1b2140,#2a3050)";
+    if (o.name) { const n = document.createElement("div"); n.className = "name"; n.style.fontSize = (o.nameSize || 30) + "px"; n.textContent = o.name; t.appendChild(n); }
+    if (o.prog > 0) { const p = document.createElement("div"); p.className = "pr"; p.innerHTML = "<b></b>"; p.firstChild.style.width = Math.min(100, o.prog * 100) + "%"; t.appendChild(p); }
+    const e = document.createElement("div"); e.className = "ep"; e.textContent = o.sub;
+    d.append(t, e);
+    return d;
+  }
+  let lastCont = "";
+  function buildCont() {
+    const wn = JSON.parse(TV.watchNext());
+    const rec = wn.length ? [] : JSON.parse(TV.recents());
+    const key = JSON.stringify([wn.map(w => [w.title, w.position]), rec.map(r => r.pkg)]);
+    if (key === lastCont) return;
+    lastCont = key;
+    const had = $("#cont").contains(document.activeElement), cards = [];
+    document.querySelectorAll(".label")[1].textContent = wn.length || !rec.length ? "Continuar assistindo" : "Usados recentemente";
+    wn.forEach(w => {
+      const ep = w.season && w.number ? `T${w.season} · E${w.number}` : w.episode || "";
+      cards.push(card({ img: w.image, name: w.image ? "" : w.title, prog: w.duration ? w.position / w.duration : 0,
+        sub: [w.title, ep, w.app].filter(Boolean).join(" · "), data: { wn: w.i, app: w.title } }));
+    });
+    rec.forEach(r => cards.push(card({ img: r.image, fit: r.banner ? "cover" : "auto 55%", name: r.banner ? "" : "",
+      sub: `${r.label} · ${ago(r.lastUsed)}`, data: { pkg: r.pkg, app: r.label } })));
+    if (!cards.length) cards.push(card({ wide: true, name: "Ative o histórico", nameSize: 34,
+      sub: "No Ally: adb shell appops set dev.vidro.launcher GET_USAGE_STATS allow", data: { say: "Rode o comando no Ally e volte pra tela inicial" } }));
+    $("#cont").replaceChildren(...cards);
+    $("#cont").scrollLeft = 0;
+    if (had) focusEl($("#cont .card"));
+  }
+  buildCont();
+  window.onTvResume = () => { buildApps(); buildCont(); };
 
   activate = el => {
     const name = el.dataset.app || el.dataset.appOf || (el.id === "hPlay" ? SLIDES[slide][0] : "");
     const pkg = el.dataset.pkg || PKG[name];
     if (el.dataset.act) return TV[el.dataset.act]();
+    if (el.dataset.wn !== undefined) { toast(`Abrindo ${el.dataset.app}…`); return TV.openWatchNext(+el.dataset.wn); }
     if (pkg) { toast(`Abrindo ${name}…`); return TV.launch(pkg); }
     toast(name ? `${name} não está instalado` : el.dataset.say);
   };
