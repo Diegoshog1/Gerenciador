@@ -1,0 +1,38 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "dev.vidro.launcher"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "dev.vidro.launcher"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // chave fixa para que cada nova versão instale por cima da anterior
+    signingConfigs {
+        vidro {
+            storeFile file("vidro.keystore")
+            storePassword "vidro123"
+            keyAlias "vidro"
+            keyPassword "vidro123"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.vidro
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}</style>
+<title>Launcher Vidro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;600;700&family=Manrope:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap">
+<style>
+/* Layout: palco 1920x1080; barra superior fina, um destaque largo, uma fileira de apps e atalhos. Sem menu lateral. */
+:root {
+  --ink: #080a14;
+  --fg: #eef0f8;
+  --fg-dim: rgba(238, 240, 248, .6);
+  --fg-faint: rgba(238, 240, 248, .32);
+  --edge: rgba(255, 255, 255, .16);
+  --focus: #9fd0ff;
+  --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--ink); color: var(--fg); font-family: var(--font-body);
+  overflow: hidden; display: grid; place-items: center;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+#fit { position: relative; }
+#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; border-radius: 18px; background: var(--ink); }
+#bg { position: absolute; inset: -40px; width: calc(100% + 80px); height: calc(100% + 80px); filter: blur(28px) brightness(.45) saturate(1.2); }
+.glow { position: absolute; width: 1500px; height: 700px; left: 210px; top: 560px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--accent, #3a4a8a), transparent); opacity: .28; filter: blur(50px); transition: background .6s ease; }
+
+.wrap { position: absolute; inset: 0 120px; }
+
+/* barra superior */
+.top { position: absolute; left: 0; right: 0; top: 54px; height: 72px; display: flex; align-items: center; gap: 28px; }
+.top .t { font-family: var(--font-display); font-weight: 300; font-size: 60px; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; }
+.top .d { font-size: 24px; color: var(--fg-dim); }
+.top .sp { flex: 1; }
+.top .w { font-size: 24px; color: var(--fg-dim); display: flex; gap: 12px; align-items: center; }
+.top .w b { font-weight: 600; color: var(--fg); }
+.ib { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; border: 2px solid transparent; cursor: pointer; outline: none; transition: background .2s, border-color .2s; }
+.ib svg { width: 30px; height: 30px; stroke: var(--fg); fill: none; stroke-width: 2.2; }
+.ib:focus { background: rgba(255,255,255,.12); border-color: var(--focus); }
+.av { background: linear-gradient(160deg, #6aa8ff, #3a5cf0); }
+.av svg { fill: #fff; stroke: none; }
+
+/* destaque */
+.hero { position: absolute; left: 0; right: 0; top: 150px; height: 310px; border-radius: 32px; overflow: hidden; border: 1.5px solid var(--edge); }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .9s ease; }
+.hero .veil { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,8,20,.85), rgba(6,8,20,.35) 45%, transparent 70%); }
+.hero .copy { position: absolute; left: 60px; bottom: 42px; max-width: 640px; }
+.eyebrow { font-size: 18px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-dim); }
+.hero h1 { font-family: var(--font-display); font-weight: 600; font-size: 48px; line-height: 1.05; margin: 12px 0 22px; text-wrap: balance; }
+.play { display: inline-flex; align-items: center; gap: 14px; height: 58px; padding: 0 30px 0 24px; border-radius: 29px; font-size: 22px; font-weight: 600; background: rgba(255,255,255,.14); border: 2px solid var(--edge); cursor: pointer; outline: none; transition: background .2s, color .2s, border-color .2s; }
+.play svg { width: 22px; height: 22px; fill: currentColor; }
+.play:focus { background: #fff; color: #0b0d18; border-color: #fff; }
+.dots { position: absolute; right: 52px; bottom: 40px; display: flex; gap: 10px; }
+.dots i { width: 10px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.35); transition: width .3s, background .3s; }
+.dots i.on { width: 30px; background: #fff; }
+
+/* apps */
+.label { position: absolute; left: 0; font-size: 22px; font-weight: 600; color: var(--fg-dim); letter-spacing: .02em; }
+.rail { position: absolute; left: -20px; right: -120px; display: flex; gap: 30px; padding: 18px 20px; overflow: hidden; scroll-behavior: smooth; }
+.app { flex: none; width: 136px; display: flex; flex-direction: column; align-items: center; gap: 16px; cursor: pointer; outline: none; }
+.tile { width: 136px; height: 136px; border-radius: 32px; display: grid; place-items: center; position: relative; overflow: hidden;
+  background: var(--brand); border: 1.5px solid rgba(255,255,255,.14);
+  filter: saturate(.55) brightness(.8); transition: transform .22s ease, filter .3s ease, box-shadow .3s ease, border-color .3s; }
+.tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,.2), transparent 50%); }
+.app span { font-size: 20px; color: var(--fg-dim); white-space: nowrap; transition: color .2s; }
+.app:focus .tile { transform: scale(1.12); filter: none; border-color: rgba(255,255,255,.5); box-shadow: 0 24px 60px -12px var(--brand), 0 0 0 4px rgba(255,255,255,.12); }
+.app:focus span { color: var(--fg); font-weight: 600; }
+
+/* continuar assistindo */
+.cards { gap: 26px; }
+.card { flex: none; width: 300px; cursor: pointer; outline: none; }
+.thumb { height: 168px; border-radius: 22px; position: relative; overflow: hidden; border: 1.5px solid rgba(255,255,255,.14); filter: brightness(.82); transition: transform .22s ease, filter .3s, box-shadow .3s, border-color .3s; }
+.thumb .name { position: absolute; left: 20px; top: 18px; right: 20px; font-family: var(--font-display); font-weight: 700; line-height: .95; text-transform: uppercase; text-shadow: 0 4px 14px rgba(0,0,0,.6); }
+.thumb .svc { position: absolute; right: 16px; bottom: 26px; font-size: 14px; font-weight: 800; opacity: .9; }
+.thumb .pr { position: absolute; left: 18px; bottom: 14px; width: 140px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.28); }
+.thumb .pr b { display: block; height: 100%; border-radius: 3px; background: #fff; }
+.card .ep { margin-top: 12px; font-size: 18px; color: var(--fg-faint); white-space: nowrap; transition: color .2s; }
+.card:focus .thumb { transform: scale(1.06); filter: none; border-color: rgba(255,255,255,.55); box-shadow: 0 20px 50px -14px rgba(0,0,0,.8), 0 0 0 4px rgba(255,255,255,.12); }
+.card:focus .ep { color: var(--fg); }
+.hint { position: absolute; right: 0; bottom: 30px; font-size: 16px; color: var(--fg-faint); }
+.thought { position: absolute; left: 0; bottom: 26px; max-width: 1340px; font-size: 22px; line-height: 1.35; color: var(--fg-dim); text-wrap: balance; }
+.thought q { font-family: "Newsreader", Georgia, serif; font-style: italic; font-size: 25px; color: var(--fg); quotes: "\201C" "\201D"; }
+.thought span { margin-left: 14px; font-size: 18px; color: var(--fg-faint); white-space: nowrap; }
+
+.toast { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.96); padding: 30px 50px; border-radius: 28px; font: 600 32px var(--font-display);
+  background: rgba(20,22,40,.6); border: 1.5px solid var(--edge); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; }
+.toast.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+body.tv { padding: 0; }
+body.tv #stage { border-radius: 0; }
+body.tv .hint { display: none; }
+.tile.real { background: #1c1f2c; }
+.tile.real img { width: 92px; height: 92px; border-radius: 20px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+</head>
+<body>
+<div id="fit">
+<div id="stage">
+  <canvas id="bg" width="960" height="540"></canvas>
+  <div class="glow" id="glow"></div>
+  <div class="wrap">
+    <header class="top">
+      <div class="t" id="time">20:35</div>
+      <div class="d" id="date">Segunda, 26 de outubro</div>
+      <div class="sp"></div>
+      <div class="w" id="wx"><b>18°</b> São Paulo · céu limpo</div>
+      <div class="ib" tabindex="0" data-nav data-say="Entrada: HDMI 1" data-act="inputs" aria-label="Entradas"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="10" rx="2"/><path d="M8 20h8"/></svg></div>
+      <div class="ib" tabindex="0" data-nav data-say="Configurações" data-act="settings" aria-label="Configurações"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></div>
+      <div class="ib" tabindex="0" data-nav data-say="Buscar" data-act="search" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></div>
+      <div class="ib av" tabindex="0" data-nav data-say="Perfil" data-act="settings" aria-label="Perfil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.2"/><path d="M3.8 21a8.2 8.2 0 0 1 16.4 0z"/></svg></div>
+    </header>
+
+    <section class="hero">
+      <canvas id="heroA" width="1680" height="310"></canvas>
+      <canvas id="heroB" width="1680" height="310" style="opacity:0"></canvas>
+      <div class="veil"></div>
+      <div class="copy">
+        <div class="eyebrow" id="hEye">YouTube</div>
+        <h1 id="hTitle">Paisagens noturnas em 4K</h1>
+        <div class="play" tabindex="0" data-nav id="hPlay"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>Assistir agora</div>
+      </div>
+      <div class="dots" id="dots"></div>
+    </section>
+
+    <div class="label" style="top:488px">Seus apps</div>
+    <div class="rail apps" id="apps" style="top:516px"></div>
+
+    <div class="label" style="top:748px">Continuar assistindo</div>
+    <div class="rail cards" id="cont" style="top:776px"></div>
+
+    <div class="thought" id="thought"></div>
+    <div class="hint">setas para navegar · Enter para abrir</div>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+/* ---------- cena desenhada (céu, planeta, montanhas, lago) ---------- */
+function rng(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+function scene(cv, p) {
+  const c = cv.getContext("2d"), w = cv.width, h = cv.height, r = rng(p.seed), hz = h * p.horizon;
+  let g = c.createLinearGradient(0, 0, 0, hz);
+  p.sky.forEach((col, i) => g.addColorStop(i / (p.sky.length - 1), col));
+  c.fillStyle = g; c.fillRect(0, 0, w, hz);
+  for (let i = 0; i < w * h / 2600; i++) {
+    const y = r() * hz * .75;
+    c.fillStyle = `rgba(255,255,255,${(.25 + r() * .75) * (1 - y / hz)})`;
+    c.fillRect(r() * w, y, r() < .1 ? 2 : 1.2, r() < .1 ? 2 : 1.2);
+  }
+  const px = w * p.planet[0], py = h * p.planet[1], pr = h * p.planet[2];
+  const pg = c.createRadialGradient(px - pr * .4, py - pr * .4, pr * .1, px, py, pr);
+  pg.addColorStop(0, p.pc[0]); pg.addColorStop(.6, p.pc[1]); pg.addColorStop(1, p.pc[2]);
+  c.save(); c.shadowColor = p.pc[0]; c.shadowBlur = pr * .35; c.fillStyle = pg; c.beginPath(); c.arc(px, py, pr, 0, 7); c.fill(); c.restore();
+  c.save(); c.translate(px, py); c.rotate(-.32); c.scale(1, .2);
+  c.strokeStyle = "rgba(255,225,200,.5)"; c.lineWidth = pr * .05; c.beginPath(); c.arc(0, 0, pr * 1.75, 0, 7); c.stroke();
+  c.lineWidth = pr * .02; c.beginPath(); c.arc(0, 0, pr * 2.05, 0, 7); c.stroke(); c.restore();
+  g = c.createRadialGradient(w * p.sun, hz, 0, w * p.sun, hz, w * .5);
+  g.addColorStop(0, p.glow); g.addColorStop(1, "transparent"); c.fillStyle = g; c.fillRect(0, 0, w, hz);
+  p.ridges.forEach(rd => {
+    c.fillStyle = rd.c; c.beginPath(); c.moveTo(0, hz);
+    let y = hz - rd.h * h * r();
+    for (let x = 0; x <= w; x += 6) {
+      const peak = Math.exp(-((x - w * rd.at) ** 2) / (2 * (w * rd.wd) ** 2));
+      y += (r() - .5) * rd.j; y = Math.min(hz, Math.max(hz - rd.h * h * (.35 + peak), y));
+      c.lineTo(x, Math.min(y, hz - peak * rd.h * h * .9));
+    }
+    c.lineTo(w, hz); c.closePath(); c.fill();
+  });
+  c.save(); c.translate(0, hz * 2); c.scale(1, -1); c.globalAlpha = .55; c.drawImage(cv, 0, 0, w, hz, 0, 0, w, hz); c.restore();
+  g = c.createLinearGradient(0, hz, 0, h); g.addColorStop(0, "rgba(10,10,30,.2)"); g.addColorStop(1, "rgba(5,5,18,.9)");
+  c.fillStyle = g; c.fillRect(0, hz, w, h - hz);
+  for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(255,190,150,${r() * .18})`; c.fillRect(r() * w, hz + 4 + r() * (h - hz), 20 + r() * 120, 1.5); }
+}
+const SCENES = [
+  { seed: 7, horizon: .74, sky: ["#0b0a2a", "#3b1d5e", "#b04a6a", "#f2945a"], planet: [.8, .1, .42], pc: ["#ffd9c7", "#c46a8a", "#2a1438"], sun: .62, glow: "rgba(255,150,90,.55)",
+    ridges: [{ c: "#3a2445", h: .3, at: .55, wd: .1, j: 14 }, { c: "#1c1226", h: .22, at: .78, wd: .12, j: 10 }] },
+  { seed: 33, horizon: .7, sky: ["#030b22", "#0e2f5c", "#2a7aa8", "#9fd6e0"], planet: [.72, .12, .3], pc: ["#e6f4ff", "#5b8fc9", "#0b1a33"], sun: .5, glow: "rgba(140,220,255,.5)",
+    ridges: [{ c: "#163250", h: .32, at: .6, wd: .14, j: 16 }, { c: "#0a1828", h: .2, at: .85, wd: .1, j: 10 }] },
+  { seed: 91, horizon: .72, sky: ["#14051c", "#4a0f3c", "#c22f4c", "#ff9b5c"], planet: [.68, .14, .26], pc: ["#ffe6b8", "#e07a3c", "#3a1208"], sun: .6, glow: "rgba(255,120,80,.6)",
+    ridges: [{ c: "#4a1a2c", h: .26, at: .75, wd: .12, j: 12 }, { c: "#200a14", h: .18, at: .5, wd: .14, j: 10 }] },
+  { seed: 55, horizon: .76, sky: ["#020812", "#08283a", "#1c6a5a", "#7fe0b0"], planet: [.84, .12, .36], pc: ["#e8fff3", "#4fb08c", "#082018"], sun: .6, glow: "rgba(120,255,200,.4)",
+    ridges: [{ c: "#123a36", h: .3, at: .65, wd: .12, j: 14 }, { c: "#061a18", h: .2, at: .9, wd: .1, j: 10 }] },
+];
+const SLIDES = [["YouTube", "Paisagens noturnas em 4K"], ["Netflix", "Novidades da semana"], ["Prime Video", "Maratona de ficção científica"], ["Spotify", "Sua trilha da noite"]];
+
+/* ---------- apps ---------- */
+const APPS = [
+  ["Netflix", "#141414", `<b style="font:900 96px/1 var(--font-display);color:#e50914;transform:scaleX(.8)">N</b>`],
+  ["YouTube", "#1c1c1c", `<svg viewBox="0 0 80 56" width="86"><rect width="80" height="56" rx="16" fill="#ff0033"/><path d="M32 16l20 12-20 12z" fill="#fff"/></svg>`],
+  ["Prime Video", "#1a98ff", `<b style="font:800 28px/1.05 var(--font-body);color:#fff;text-align:center">prime<br>video</b>`],
+  ["Disney+", "#0f2a8a", `<b style="font:italic 700 32px/1 Georgia,serif;color:#fff">Disney+</b>`],
+  ["Max", "#002be7", `<b style="font:700 42px/1 var(--font-display);color:#fff">max</b>`],
+  ["Globoplay", "#f2382b", `<b style="font:700 24px/1 var(--font-body);color:#fff">globoplay</b>`],
+  ["Spotify", "#121212", `<svg viewBox="0 0 48 48" width="80"><circle cx="24" cy="24" r="22" fill="#1ed760"/><path d="M12 18c8-3 17-2 24 2M14 25c6-2 13-1.5 19 1.5M15.5 31.5c5-1.5 10-1 14.5 1" stroke="#121212" stroke-width="3.4" fill="none" stroke-linecap="round"/></svg>`],
+  ["Apple TV", "#2a2a2c", `<b style="font:600 42px/1 var(--font-body);color:#fff">tv</b>`],
+  ["Twitch", "#9146ff", `<b style="font:800 30px/1 var(--font-display);color:#fff">twitch</b>`],
+  ["Steam Link", "#1b2838", `<b style="font:700 24px/1.05 var(--font-display);color:#c7d5e0;text-align:center">STEAM<br><span style="font-size:17px">link</span></b>`],
+];
+const SHOWS = [
+  ["The Last of Us", "linear-gradient(120deg,#2b3a2a,#6b6a4a 60%,#1a1e14)", "max", .45, 40, "T2 · E4", "Max"],
+  ["Fallout", "linear-gradient(120deg,#7a5a1a,#d9a441 55%,#3a2a10)", "prime video", .62, 44, "T1 · E6", "Prime Video"],
+  ["House of the Dragon", "linear-gradient(120deg,#2a0a0a,#8a1a12 55%,#120404)", "max", .3, 30, "T2 · E2", "Max"],
+  ["Ruptura", "linear-gradient(120deg,#c9d6dc,#7f97a3 60%,#2e3b44)", "tv+", .7, 40, "T2 · E8", "Apple TV"],
+  ["O Problema dos 3 Corpos", "linear-gradient(120deg,#05070c,#1d2a3e 55%,#a83a1e)", "NETFLIX", .25, 28, "T1 · E3", "Netflix"],
+  ["Round 6", "linear-gradient(120deg,#0c3a3a,#e0447a 60%,#1a0a14)", "NETFLIX", .8, 42, "T3 · E1", "Netflix"],
+];
+$("#cont").innerHTML = SHOWS.map(s =>
+  `<div class="card" tabindex="0" data-nav data-show="${s[0]}" data-app-of="${s[6]}"><div class="thumb" style="background:${s[1]}"><div class="name" style="font-size:${s[4]}px">${s[0]}</div><div class="svc">${s[2]}</div><div class="pr"><b style="width:${s[3] * 100}%"></b></div></div><div class="ep">${s[5]} · ${s[6]}</div></div>`).join("");
+const GLOW = { Netflix: "#e50914", YouTube: "#ff0033", Spotify: "#1ed760", "Apple TV": "#8a8a96", "Steam Link": "#66c0f4" };
+$("#apps").innerHTML = APPS.map(a =>
+  `<div class="app" tabindex="0" data-nav data-app="${a[0]}" style="--brand:${a[1]}"><div class="tile">${a[2]}</div><span>${a[0]}</span></div>`).join("");
+$("#dots").innerHTML = SLIDES.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("");
+
+/* fundo e destaque */
+scene($("#bg"), { ...SCENES[0], planet: [.72, .05, .5], horizon: .66 });
+let slide = 0, front = $("#heroA"), back = $("#heroB");
+scene(front, SCENES[0]);
+function showSlide(n) {
+  slide = (n + SLIDES.length) % SLIDES.length;
+  scene(back, SCENES[slide]); back.style.opacity = 1; front.style.opacity = 0; [front, back] = [back, front];
+  $("#hEye").textContent = SLIDES[slide][0]; $("#hTitle").textContent = SLIDES[slide][1];
+  document.querySelectorAll("#dots i").forEach((d, i) => d.classList.toggle("on", i === slide));
+}
+let timer = setInterval(() => showSlide(slide + 1), 8000);
+
+/* relógio */
+const DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+function tick() {
+  const d = new Date();
+  $("#time").textContent = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  $("#date").textContent = `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`;
+}
+tick(); setInterval(tick, 10000);
+
+/* um pensamento por dia: literatura e filosofia, nada de frase motivacional */
+const THOUGHTS = [
+  ["O real não está na saída nem na chegada: ele se dispõe para a gente é no meio da travessia.", "Guimarães Rosa"],
+  ["Uso a palavra para compor meus silêncios.", "Manoel de Barros"],
+  ["Liberdade é pouco. O que eu desejo ainda não tem nome.", "Clarice Lispector"],
+  ["Isso de querer ser exatamente aquilo que a gente é ainda vai nos levar além.", "Paulo Leminski"],
+  ["Eles passarão… Eu passarinho!", "Mario Quintana"],
+  ["A arte existe porque a vida não basta.", "Ferreira Gullar"],
+  ["Não sou nada. Nunca serei nada. Não posso querer ser nada. À parte isso, tenho em mim todos os sonhos do mundo.", "Álvaro de Campos"],
+  ["Sou um guardador de rebanhos. O rebanho é os meus pensamentos.", "Alberto Caeiro"],
+  ["No meio do caminho tinha uma pedra.", "Carlos Drummond de Andrade"],
+  ["Viver é muito perigoso.", "Guimarães Rosa"],
+  ["Não é que tenhamos pouco tempo; é que perdemos muito.", "Sêneca"],
+  ["É preciso imaginar Sísifo feliz.", "Albert Camus"],
+  ["Sempre imaginei que o paraíso seria uma espécie de biblioteca.", "Jorge Luis Borges"],
+  ["Ninguém se banha duas vezes no mesmo rio.", "Heráclito"],
+  ["Que sei eu?", "Montaigne"],
+  ["A gente não quer só comida, a gente quer comida, diversão e arte.", "Titãs"],
+  ["Tudo vale a pena se a alma não é pequena.", "Fernando Pessoa"],
+  ["O poeta é um fingidor.", "Fernando Pessoa"],
+];
+(() => {
+  const d = new Date(), day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+  const [q, a] = THOUGHTS[day % THOUGHTS.length];
+  $("#thought").innerHTML = `<q>${q}</q><span>— ${a}</span>`;
+})();
+
+let tt;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 1500); }
+function activate(el) {
+  if (el.dataset.app) toast(`Abrindo ${el.dataset.app}…`);
+  else if (el.id === "hPlay") toast(`Abrindo ${SLIDES[slide][0]}…`);
+  else if (el.dataset.show) toast(`Continuando ${el.dataset.show}`);
+  else toast(el.dataset.say);
+}
+
+/* navegação por setas */
+const DIR = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+function move(dx, dy) {
+  const cur = document.activeElement?.hasAttribute?.("data-nav") ? document.activeElement : null;
+  if (!cur) return focusEl($(".app"));
+  const a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+  let best = null, bs = Infinity;
+  document.querySelectorAll("[data-nav]").forEach(el => {
+    if (el === cur) return;
+    const b = el.getBoundingClientRect(), bx = b.left + b.width / 2, by = b.top + b.height / 2;
+    const main = dx ? (bx - ax) * dx : (by - ay) * dy;
+    if (main <= 4) return;
+    const s = main + (dx ? Math.abs(by - ay) : Math.abs(bx - ax)) * 2.2;
+    if (s < bs) { bs = s; best = el; }
+  });
+  if (best) focusEl(best);
+}
+function focusEl(el) {
+  el.focus({ preventScroll: true });
+  if (el.dataset.app) {
+    $("#glow").style.setProperty("--accent", GLOW[el.dataset.app] || el.style.getPropertyValue("--brand"));
+  }
+  if (el.dataset.show) $("#glow").style.setProperty("--accent", GLOW[el.dataset.appOf] || APPS.find(a => a[0] === el.dataset.appOf)?.[1]);
+  const r = el.closest(".rail");
+  if (r) {
+    const left = el.offsetLeft - 20, right = el.offsetLeft + el.offsetWidth + 140;
+    if (left < r.scrollLeft) r.scrollLeft = left;
+    else if (right > r.scrollLeft + r.clientWidth) r.scrollLeft = right - r.clientWidth;
+  }
+  clearInterval(timer);
+  if (el.id !== "hPlay") timer = setInterval(() => showSlide(slide + 1), 8000);
+}
+document.addEventListener("keydown", e => {
+  if (DIR[e.key]) {
+    e.preventDefault();
+    if (document.activeElement?.id === "hPlay" && e.key === "ArrowRight") return showSlide(slide + 1);
+    if (document.activeElement?.id === "hPlay" && e.key === "ArrowLeft" && slide > 0) return showSlide(slide - 1);
+    move(...DIR[e.key]);
+  } else if (e.key === "Enter" || e.key === " " || e.keyCode === 13 || e.keyCode === 23) {
+    const el = document.activeElement; if (el?.hasAttribute("data-nav")) { e.preventDefault(); activate(el); }
+  }
+});
+document.addEventListener("click", e => { const el = e.target.closest("[data-nav]"); if (el) { focusEl(el); activate(el); } });
+document.querySelectorAll(".rail").forEach(r => r.addEventListener("wheel", e => { r.scrollLeft += e.deltaY; e.preventDefault(); }, { passive: false }));
+
+/* ---------- na TV: apps reais, abrir apps, clima ao vivo ---------- */
+if (window.TV) (() => {
+  document.body.classList.add("tv");
+  const KNOWN = {
+    "Netflix": ["com.netflix.ninja"], "YouTube": ["com.google.android.youtube.tv"],
+    "Prime Video": ["com.amazon.amazonvideo.livingroom"], "Disney+": ["com.disney.disneyplus"],
+    "Max": ["com.wbd.stream", "com.hbo.hbonow"], "Globoplay": ["com.globo.globotv"],
+    "Spotify": ["com.spotify.tv.android"], "Apple TV": ["com.apple.atve.androidtv.appletv"],
+    "Twitch": ["tv.twitch.android.app", "tv.twitch.android.viewer"], "Steam Link": ["com.valvesoftware.steamlink"],
+  };
+  const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const PKG = {};
+  let last = "";
+  function buildApps() {
+    const list = JSON.parse(TV.apps()), key = list.map(a => a.pkg).join();
+    if (key === last) return;
+    last = key;
+    const byPkg = Object.fromEntries(list.map(a => [a.pkg, a])), tiles = [];
+    APPS.forEach(a => {
+      const p = (KNOWN[a[0]] || []).find(p => byPkg[p]);
+      if (!p) return;
+      PKG[a[0]] = p; delete byPkg[p];
+      tiles.push(`<div class="app" tabindex="0" data-nav data-app="${a[0]}" data-pkg="${p}" style="--brand:${a[1]}"><div class="tile">${a[2]}</div><span>${a[0]}</span></div>`);
+    });
+    Object.values(byPkg).sort((a, b) => a.label.localeCompare(b.label)).forEach(a =>
+      tiles.push(`<div class="app" tabindex="0" data-nav data-app="${esc(a.label)}" data-pkg="${a.pkg}" style="--brand:#2a3050"><div class="tile real"><img src="${a.icon}" alt=""></div><span>${esc(a.label)}</span></div>`));
+    $("#apps").innerHTML = tiles.join("");
+    $("#apps").scrollLeft = 0;
+  }
+  buildApps();
+  window.onTvResume = buildApps;
+
+  activate = el => {
+    const name = el.dataset.app || el.dataset.appOf || (el.id === "hPlay" ? SLIDES[slide][0] : "");
+    const pkg = el.dataset.pkg || PKG[name];
+    if (el.dataset.act) return TV[el.dataset.act]();
+    if (pkg) { toast(`Abrindo ${name}…`); return TV.launch(pkg); }
+    toast(name ? `${name} não está instalado` : el.dataset.say);
+  };
+
+  const SKY = c => c === 0 ? "céu limpo" : c <= 2 ? "poucas nuvens" : c === 3 ? "nublado" : c <= 48 ? "neblina" : c <= 57 ? "garoa" : c <= 67 ? "chuva" : c <= 77 ? "neve" : c <= 82 ? "pancadas de chuva" : "tempestade";
+  function weather() {
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=-23.55&longitude=-46.63&current=temperature_2m,weather_code&timezone=America%2FSao_Paulo")
+      .then(r => r.json())
+      .then(d => { $("#wx").innerHTML = `<b>${Math.round(d.current.temperature_2m)}°</b> São Paulo · ${SKY(d.current.weather_code)}`; })
+      .catch(() => {});
+  }
+  weather(); setInterval(weather, 30 * 60 * 1000);
+})();
+
+function fit() {
+  const pad = window.TV ? 0 : 32, w = document.body.clientWidth - pad, h = window.innerHeight - pad / 2;
+  const k = Math.min(w / 1920, h / 1080);
+  $("#stage").style.transform = `scale(${k})`;
+  $("#fit").style.width = 1920 * k + "px"; $("#fit").style.height = 1080 * k + "px";
+}
+addEventListener("resize", fit); fit();
+document.fonts?.ready.then(fit);
+setTimeout(() => focusEl($(".app")), 300);
+</script>
+
+</body>
+</html>
